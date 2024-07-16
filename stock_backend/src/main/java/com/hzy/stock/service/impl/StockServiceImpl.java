@@ -1,21 +1,35 @@
 package com.hzy.stock.service.impl;
 
+import com.alibaba.excel.EasyExcel;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import com.hzy.stock.mapper.StockBlockRtInfoMapper;
 import com.hzy.stock.mapper.StockMarketIndexInfoMapper;
+import com.hzy.stock.mapper.StockRtInfoMapper;
 import com.hzy.stock.pojo.domain.InnerMarketDomain;
 import com.hzy.stock.pojo.domain.StockBlockDomain;
+import com.hzy.stock.pojo.domain.StockUpdownDomain;
+import com.hzy.stock.pojo.entity.StockBlockRtInfo;
 import com.hzy.stock.pojo.entity.StockMarketIndexInfo;
 import com.hzy.stock.pojo.vo.StockInfoConfig;
 import com.hzy.stock.service.StockService;
 import com.hzy.stock.utils.DateTimeUtil;
+import com.hzy.stock.vo.resp.PageResult;
 import com.hzy.stock.vo.resp.R;
+import com.hzy.stock.vo.resp.ResponseCode;
+import lombok.extern.slf4j.Slf4j;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
-import java.util.Date;
-import java.util.List;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.net.URLEncoder;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author daocaoaren
@@ -23,6 +37,7 @@ import java.util.List;
  * @description :
  */
 @Service
+@Slf4j //打印日志的注解
 public class StockServiceImpl implements StockService {
     @Autowired
     private StockInfoConfig stockInfoConfig;
@@ -33,6 +48,9 @@ public class StockServiceImpl implements StockService {
     @Autowired
     private StockBlockRtInfoMapper stockBlockRtInfoMapper;
 
+    @Autowired
+    private StockRtInfoMapper stockRtInfoMapper;
+
     /**
      * 获取国内最新大盘的数据
      * @return
@@ -42,7 +60,7 @@ public class StockServiceImpl implements StockService {
         //1.获取股票的最新交易时间点（精确到分钟，秒和毫秒设置为0）
         DateTime newDateTime = DateTimeUtil.getLastDate4Stock(DateTime.now());
         Date newDate = newDateTime.toDate();
-        //模拟数据
+        //TODO:模拟数据
         newDate = DateTime.parse("2021-12-28 09:31:00", DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss")).toDate();
 
         //2.获取大盘编码集合
@@ -67,6 +85,235 @@ public class StockServiceImpl implements StockService {
         List<StockBlockDomain> data = stockBlockRtInfoMapper.getStockBlockInfoLimit(lastDate);
         //封装返回数据
         return R.ok(data);
+    }
+
+    /**
+     * 分页查询股票最新数据，并按照涨幅排序查询,展示出股票涨幅最大的数据
+     * @param page
+     * @param pageSize
+     * @return
+     */
+    @Override
+    public R<PageResult<StockUpdownDomain>> getStockPageInfo(Integer page, Integer pageSize) {
+        //1.设置PageHelper分页参数
+        PageHelper.startPage(page, pageSize);
+        //2.获取当前最新的股票交易时间点
+        Date newDate = DateTimeUtil.getLastDate4Stock(DateTime.now()).toDate();
+        //TODO mock数据,后续删除
+        newDate=DateTime.parse("2022-06-07 15:00:00", DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss")).toDate();
+        //3.调用mapper接口查询
+        List<StockUpdownDomain> data = stockRtInfoMapper.getNewDateStockPageInfo(newDate);
+        if(CollectionUtils.isEmpty(data)){
+            return R.error(ResponseCode.NO_RESPONSE_DATA);
+        }
+        //4.组装PageInfo对象，获取分页的具体信息,因为PageInfo包含了丰富的分页信息，而部分分页信息是前端不需要的
+        //PageInfo<StockUpdownDomain> pageInfo = new PageInfo<>(date);
+        // 将获取的数据放到PageInfo中，在PageResult中有构造器，将从数据库中获取的数据封装到PageInfo中，
+        // 统计条数并且将数据封装到rows结果集中
+//        PageResult<StockUpdownDomain> pageResult = new PageResult<>(pageInfo);
+        PageResult<StockUpdownDomain> pageResult = new PageResult<>(new PageInfo<>(data));
+        //5.封装响应数据
+        return R.ok(pageResult);
+    }
+
+    /**
+     * 设计股票涨幅榜模块，需求是查询涨幅榜最大的前4条数据展示在前端
+     * @return
+     */
+    @Override
+    public R<List<StockUpdownDomain>> getStockIncreaseMax() {
+        //1.获取股票最新交易时间点
+        Date newDate = DateTimeUtil.getLastDate4Stock(DateTime.now()).toDate();
+        //TODO mock数据,后续删除
+        newDate=DateTime.parse("2022-06-07 15:00:00", DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss")).toDate();
+        //2.调用mapper接口查询
+        List<StockUpdownDomain> data =  stockRtInfoMapper.getStockIncreaseMax(newDate);
+        //3.封装响应数据
+        return R.ok(data);
+    }
+
+    /**
+     * 统计股票最新交易日内每分钟的跌停的股票数量
+     * @return
+     */
+    @Override
+    public R<Map<String, List>> getStockUpdownCount() {
+        //1.获取最新股票交易的时间点（截止时间）
+        DateTime newDateTime = DateTimeUtil.getLastDate4Stock(DateTime.now());
+        //TODO 先mock数据,后续删除
+        newDateTime = DateTime.parse("2022-01-06 14:25:00", DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss"));
+        Date newendDate = newDateTime.toDate();
+        //获取最新交易时间对应的开盘点
+        Date newstartDate = DateTimeUtil.getOpenDate(newDateTime).toDate();
+
+        //统计涨停数据
+        List<Map> upData = stockRtInfoMapper.getStockUpDownCount(newstartDate, newendDate,1);
+        //统计跌停数据
+        List<Map> downData = stockRtInfoMapper.getStockUpDownCount(newstartDate, newendDate,0);
+        //封装返回数据
+        HashMap<String, List> newUpDownData = new HashMap<>();
+        newUpDownData.put("upList", upData);
+        newUpDownData.put("downList", downData);
+
+        return R.ok(newUpDownData);
+    }
+
+    /**
+     * 导出指定页码最新股票数据到excel
+     * @param response  响应对象
+     * @param page  当前页
+     * @param pageSize 每页大小
+     * @return
+     */
+    @Override
+    public void exportStockInFoByPage(HttpServletResponse response, Integer page, Integer pageSize) {
+        //1.获取分页数据
+        R<PageResult<StockUpdownDomain>> r = this.getStockPageInfo(page, pageSize);
+        PageResult<StockUpdownDomain> data = r.getData();
+        List<StockUpdownDomain> stockUpdownDomains = data.getRows();
+        //2.将数据导出到excel中
+        //设置响应excel文件格式类型
+        response.setContentType("application/vnd.ms-excel");
+        //2.设置响应数据的编码格式
+        response.setCharacterEncoding("utf-8");
+        //3.设置默认的文件名称
+        // 这里URLEncoder.encode可以防止中文乱码 当然和easyexcel没有关系
+        try {
+            String fileName = URLEncoder.encode("stockRt", "UTF-8");
+            //设置默认文件名称：兼容一些特殊浏览器
+            response.setHeader("content-disposition", "attachment;filename=" + fileName + ".xlsx");
+            //4.响应excel流
+            EasyExcel
+                    .write(response.getOutputStream(),StockUpdownDomain.class)
+                    .sheet("股票涨幅信息")
+                    .doWrite(stockUpdownDomains);
+        } catch (IOException e) {
+           log.error("当前导出数据异常，当前页：{},每页大小：{},异常信息：{}",page,pageSize,e.getMessage());
+           //通知前端异常，稍后重试
+            response.setContentType("application/json");
+            response.setCharacterEncoding("utf-8");
+            R<Object> error = R.error(ResponseCode.ERROR);
+
+            try {
+                String jsonData =  new ObjectMapper().writeValueAsString(error);
+                response.getWriter().write(jsonData);
+            } catch (IOException ex) {
+                log.error("响应错误信息失败");
+            }
+        }
+
+
+    }
+
+    /**
+     * 统计A股大盘T日和T-1日成交量对比功能（成交量为沪深两市成交量之和），实现成交量功能
+     * @return
+     */
+    @Override
+    public R<Map<String, List>> getStockTradeAmt() {
+        //1.获取T日和T-1日的开始时间和结束时间
+        //1.1 获取最近股票有效交易时间点--T日时间范围
+        DateTime lastDateTime = DateTimeUtil.getLastDate4Stock(DateTime.now());
+        //获取当日最近的开盘时间
+        DateTime openDateTime = DateTimeUtil.getOpenDate(lastDateTime);
+        //转换成Java中的data，方便jdbc识别
+        Date lastDate = lastDateTime.toDate();
+        Date openDate = openDateTime.toDate();
+        //TODO  mock数据
+        openDate=DateTime.parse("2022-01-03 09:30:00", DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss")).toDate();
+        lastDate=DateTime.parse("2022-01-03 14:40:00", DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss")).toDate();
+
+
+        //获取上一个交易日的时间
+        DateTime preLastDateTime = DateTimeUtil.getPreviousTradingDay(lastDateTime);
+        //获取上一个交易日最近的开盘时间
+        DateTime preOpenDateTime = DateTimeUtil.getOpenDate(preLastDateTime);
+        //转换成Java中的data，方便jdbc识别
+        Date preLastDate = preLastDateTime.toDate();
+        Date preOpenDate = preOpenDateTime.toDate();
+        //TODO  mock数据
+        preOpenDate=DateTime.parse("2022-01-02 09:30:00", DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss")).toDate();
+        preLastDate=DateTime.parse("2022-01-02 14:40:00", DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss")).toDate();
+
+
+        //2.获取上证和深证的配置的大盘id
+        //2.1 获取大盘的id集合
+        List<String> innerCode = stockInfoConfig.getInner();
+
+        //查询T日当前时间的大盘交易数量
+        List<Map> TData = stockMarketIndexInfoMapper.getStockTradeAmtMin(innerCode,openDate,lastDate);
+        if(CollectionUtils.isEmpty(TData)){
+            TData =  new ArrayList<>();
+        }
+
+        //查询T-1日当前时间的大盘交易数量
+        List<Map> T_1Data = stockMarketIndexInfoMapper.getStockTradeAmtMin(innerCode,preOpenDate,lastDate);
+        if(CollectionUtils.isEmpty(T_1Data)){
+            T_1Data =  new ArrayList<>();
+        }
+
+        //3.封装返回数据
+        HashMap<String, List> allDate = new HashMap<>();
+        allDate.put("amtList", TData);
+        allDate.put("yesAmtList", T_1Data);
+
+
+        return R.ok(allDate);
+    }
+
+    /**
+     * 统计当前时间下各个股票的涨幅区间的数量，完善各股涨跌图，涨幅区间分别为<-7% -7%~-5% -5%~-3% -3%~0% 0%~3% 3%~5% 5%~7% 7%>
+     * @return
+     */
+    @Override
+    public R<Map> getStockIncreaseRangeInfo() {
+        //获取股票的最新交易时间点
+        DateTime dateTime = DateTimeUtil.getLastDate4Stock(DateTime.now());
+        Date newDate = dateTime.toDate();
+        //TODO  mock数据
+        newDate=DateTime.parse("2022-01-06 09:55:00", DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss")).toDate();
+        //调用mapper接口获取数据
+        List<Map> stockIncreaseRange = stockRtInfoMapper.getStockIncreaseRangeInfoByDate(newDate);
+        //获取有序的涨幅区间标题集合
+        List<String> upDownRange = stockInfoConfig.getUpDownRange();
+        //将顺序的涨幅区间内的每个元素转花成map集合可以实现前端的顺序展示
+        //方式一解决前端显示数据不顺序的问题
+       /* List<Map> lastAllDate = new ArrayList<>();
+        for (String title : upDownRange) {
+            Map tmp = null;
+            for (Map map : stockIncreaseRange) {
+                if(map.containsValue(title)){
+                    tmp = map;
+                    break;
+                }
+            }
+
+            if (tmp == null){
+                //这个区间没有数据，就将这个数据弄成零返回给前端
+                tmp = new HashMap<>();
+                tmp.put("count",0);
+                tmp.put("title",title);
+            }
+            lastAllDate.add(tmp);
+        }*/
+        //方式二解决前端显示数据不顺序的问题stream流
+        List<Map> lastAllDate = upDownRange.stream().map(title -> {
+            Optional<Map> result = stockIncreaseRange.stream().filter(map -> map.containsValue(title)).findFirst();
+            if (result.isPresent()) {
+
+                return result.get();
+            } else {
+                Map tmp = new HashMap<>();
+                tmp.put("count", 0);
+                tmp.put("title", title);
+                return tmp;
+            }
+        }).collect(Collectors.toList());
+        //封装返回数据
+        HashMap<String, Object> resultMap = new HashMap<>();
+        resultMap.put("time", dateTime.toString("yyyy-MM-dd HH:mm:ss"));
+        resultMap.put("infos",lastAllDate);
+        return R.ok(resultMap);
     }
 
 

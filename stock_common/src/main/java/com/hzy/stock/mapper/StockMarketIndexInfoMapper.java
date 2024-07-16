@@ -6,6 +6,7 @@ import org.apache.ibatis.annotations.Param;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 /**
 * @author daocaoaren
@@ -35,4 +36,17 @@ public interface StockMarketIndexInfoMapper {
      */
     List<InnerMarketDomain> getMarketInfo(@Param("newDate") Date newDate,@Param("innerCode") List<String> innerCode);
 
-}
+
+
+    /**
+     *统计A股大盘T日和T-1日成交量
+     * @param lastDate
+     * @param openDate
+     * @param innerCode
+     * @return
+     */
+    List<Map> getStockTradeAmtMin(@Param("innerCode") List<String> innerCode,@Param("openDate") Date openDate,@Param("lastDate") Date lastDate);
+
+
+
+    }

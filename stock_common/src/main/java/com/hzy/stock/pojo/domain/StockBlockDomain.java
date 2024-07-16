@@ -14,7 +14,7 @@ import java.util.Date;
 /**
  * @author daocaoaren
  * @date 2024/7/15 20:25
- * @description :股票板块区域类
+ * @description :股票板块区域类/对应板块指数
  */
 @ApiModel("股票板块区域类")
 @Data

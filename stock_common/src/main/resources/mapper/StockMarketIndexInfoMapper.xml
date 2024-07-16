@@ -40,7 +40,6 @@
         smi.open_point as openPoint,
         smi.cur_point as curPoint,
         smi.pre_close_point as preClosePoint,
-
         smi.trade_amount as tradeAmt,
         smi.trade_volume as tradeVol,
 
@@ -55,6 +54,21 @@
         </foreach>
         and smi.cur_time=#{newDate}
     </select>
+
+    <select id="getStockTradeAmtMin" resultType="java.util.Map">
+        select
+        date_format(smi.cur_time,'%Y%m%d%H%i') as time,
+        sum(smi.trade_amount)  as count
+        from stock_market_index_info as smi
+        where smi.market_code in
+        <foreach collection="innerCode" item="marketId" open="("  separator="," close=")">
+            #{marketId}
+        </foreach>
+        and smi.cur_time between #{openDate} and #{lastDate}
+        group by smi.cur_time
+        order by time asc;
+    </select>
+
 
     <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
         delete from stock_market_index_info

@@ -48,6 +48,65 @@ public class UserServiceImpl implements UserService {
     private RedisTemplate redisTemplate;
 
     /**
+     * 根据用户名查询用户信息 用于测试
+     * @param userName
+     * @return
+     */
+    @Override
+    public SysUser findByUserName(String userName) {
+        return sysUserMapper.findUserInfoByName(userName);
+    }
+
+
+    /**
+     * 用户登录
+     * @param loginReqVo
+     * @return
+     */
+    @Override
+    public R<LoginRespVo> login(LoginReqVo loginReqVo) {
+        //1.判断参数是否合法
+        if (loginReqVo == null || StringUtils.isBlank(loginReqVo.getUsername()) || StringUtils.isBlank(loginReqVo.getPassword())) {
+            return R.error(ResponseCode.DATA_ERROR);
+        }
+        //判断校验码和sessionId是有效
+        if (StringUtils.isBlank(loginReqVo.getCode()) || StringUtils.isBlank(loginReqVo.getSessionId())) {
+            return R.error(ResponseCode.DATA_ERROR);
+        }
+        //判断验证码是否正确
+        //1.从redis中获取验证码
+        String redisCode = (String) redisTemplate.opsForValue().get(StockConstant.CHECK_PREFIX + loginReqVo.getSessionId());
+        //判断验证码是否正确
+        if(StringUtils.isBlank(redisCode) || !redisCode.equals(loginReqVo.getCode())) {
+            return R.error(ResponseCode.CHECK_CODE_ERROR);
+        }
+        //根据用户名去数据库中查询用户信息，获取密码的密文
+        SysUser sysUser = sysUserMapper.findUserInfoByName(loginReqVo.getUsername());
+        if (sysUser == null) {
+            return R.error(ResponseCode.ACCOUNT_NOT_EXISTS);
+        }
+        String password = sysUser.getPassword();
+        //调用匹配器匹配前端传送来的密码和数据库中的密文是否对应
+        boolean result = passwordEncoder.matches(loginReqVo.getPassword(), password);
+        if (!result) {
+            return R.error(ResponseCode.USERNAME_OR_PASSWORD_ERROR);
+        }
+        //4.响应
+        LoginRespVo loginRespvo = new LoginRespVo();
+//        loginRespvo.setUsername(sysUser.getUsername());
+//        loginRespvo.setNickName(sysUser.getNickName());
+//        loginRespvo.setPhone(sysUser.getPhone());
+//        loginRespvo.setId(sysUser.getId());
+        //由于LoginRespVo和SysUser的有些属性相同，但是SysUser中属性太多了，所以使用工具类
+        //必须保证属性名称和类型一致，否则会报错
+        BeanUtils.copyProperties(sysUser, loginRespvo);
+
+        return R.ok(loginRespvo);
+    }
+
+
+
+    /**
      * 生成登入页面的验证码功能呢
      * @return
      */
@@ -91,64 +150,5 @@ public class UserServiceImpl implements UserService {
         map.put("sessionId", sessionId);
         //响应数据
         return R.ok(map);
-    }
-
-    /**
-     * 根据用户名查询用户信息
-     * @param userName
-     * @return
-     */
-    @Override
-    public SysUser findByUserName(String userName) {
-        return sysUserMapper.findUserInfoByName(userName);
-    }
-
-    /**
-     * 用户登录
-     * @param loginReqVo
-     * @return
-     */
-    @Override
-    public R<LoginRespVo> login(LoginReqVo loginReqVo) {
-        //1.判断参数是否合法
-        if (loginReqVo == null || StringUtils.isBlank(loginReqVo.getUsername()) || StringUtils.isBlank(loginReqVo.getPassword())) {
-            return R.error(ResponseCode.DATA_ERROR);
-        }
-        //判断校验码和sessionId是有效
-        if (StringUtils.isBlank(loginReqVo.getCode()) || StringUtils.isBlank(loginReqVo.getSessionId())) {
-            return R.error(ResponseCode.DATA_ERROR);
-        }
-        //判断验证码是否正确
-        //1.从redis中获取验证码
-        String redisCode = (String) redisTemplate.opsForValue().get(StockConstant.CHECK_PREFIX + loginReqVo.getSessionId());
-        //判断验证码是否正确
-        if(StringUtils.isBlank(redisCode) || !redisCode.equals(loginReqVo.getCode())) {
-            return R.error(ResponseCode.CHECK_CODE_ERROR);
-        }
-        //根据用户名去数据库中查询用户信息，获取密码的密文
-        SysUser sysUser = sysUserMapper.findUserInfoByName(loginReqVo.getUsername());
-        if (sysUser == null) {
-            return R.error(ResponseCode.ACCOUNT_NOT_EXISTS);
-        }
-        String password = sysUser.getPassword();
-        //调用匹配器匹配前端传送来的密码和数据库中的密文是否对应
-        boolean result = passwordEncoder.matches(loginReqVo.getPassword(), password);
-        if (!result) {
-            return R.error(ResponseCode.USERNAME_OR_PASSWORD_ERROR);
-        }
-
-
-
-        //4.响应
-        LoginRespVo loginRespvo = new LoginRespVo();
-//        loginRespvo.setUsername(sysUser.getUsername());
-//        loginRespvo.setNickName(sysUser.getNickName());
-//        loginRespvo.setPhone(sysUser.getPhone());
-//        loginRespvo.setId(sysUser.getId());
-        //由于LoginRespVo和SysUser的有些属性相同，但是SysUser中属性太多了，所以使用工具类
-        //必须保证属性名称和类型一致，否则会报错
-        BeanUtils.copyProperties(sysUser, loginRespvo);
-
-        return R.ok(loginRespvo);
     }
 }

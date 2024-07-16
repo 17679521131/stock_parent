@@ -1,6 +1,12 @@
 package com.hzy.stock.mapper;
 
+import com.hzy.stock.pojo.domain.StockUpdownDomain;
 import com.hzy.stock.pojo.entity.StockRtInfo;
+import org.apache.ibatis.annotations.Param;
+
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 /**
 * @author daocaoaren
@@ -22,4 +28,32 @@ public interface StockRtInfoMapper {
 
     int updateByPrimaryKey(StockRtInfo record);
 
+    /**
+     * 分页查询股票最新数据，并按照涨幅排序查询,展示出股票涨幅最大的数据
+     * @param newDate 当前最新时间对象
+     * @return
+     */
+    List<StockUpdownDomain> getNewDateStockPageInfo(@Param("newDate") Date newDate);
+
+    /**
+     * 设计股票涨幅榜模块，需求是查询涨幅榜最大的前4条数据展示在前端
+     * @return
+     */
+    List<StockUpdownDomain> getStockIncreaseMax(@Param("newDate") Date newDate);
+
+    /**
+     * 统计指定时间范围内，股票涨跌停的数量流水
+     * @param newStartDate 最新的股票开盘时间
+     * @param newEndDate 最新截止时间
+     * @param flag 1表示统计涨停，0表示跌停
+     * @return
+     */
+    List<Map> getStockUpDownCount(@Param("newStartDate") Date newStartDate,@Param("newEndDate") Date newEndDate,@Param("flag") int flag);
+
+    /**
+     * 获取指定时间内，各个涨幅区间的各个股票数量
+     * @param newDate 当前时间
+     * @return
+     */
+    List<Map> getStockIncreaseRangeInfoByDate(@Param("newDate") Date newDate);
 }

@@ -28,7 +28,7 @@ public class UserController {
     private UserService userService;
 
     /**
-     * 根据用户名获取用户信息
+     * 根据用户名获取用户信息  用于测试
      * @param name
      * @return
      */

@@ -32,6 +32,115 @@
         where  id = #{id,jdbcType=BIGINT} 
     </select>
 
+    <select id="getNewDateStockPageInfo" resultType="com.hzy.stock.pojo.domain.StockUpdownDomain">
+        select
+            sri.trade_amount as tradeAmt,
+            sri.pre_close_price as preClosePrice,
+            (sri.max_price-sri.min_price)/sri.pre_close_price as amplitude,
+            sri.stock_code as code,
+            sri.stock_name as  name,
+            sri.cur_time as curDate,
+            sri.trade_volume as tradeVol,
+            sri.cur_price-sri.pre_close_price as increase,
+            (sri.cur_price-sri.pre_close_price) /pre_close_price as upDown,
+            sri.cur_price as tradePrice
+        from stock_rt_info as   sri
+        where sri.cur_time=#{newDate}
+        order by upDown desc
+    </select>
+    <select id="getStockIncreaseMax" resultType="com.hzy.stock.pojo.domain.StockUpdownDomain">
+        select
+            sri.trade_amount as tradeAmt,
+            sri.pre_close_price as preClosePrice,
+            (sri.max_price-sri.min_price)/sri.pre_close_price as amplitude,
+            sri.stock_code as code,
+            sri.stock_name as  name,
+            sri.cur_time as curDate,
+            sri.trade_volume as tradeVol,
+            sri.cur_price-sri.pre_close_price as increase,
+            (sri.cur_price-sri.pre_close_price) /pre_close_price as upDown,
+            sri.cur_price as tradePrice
+        from stock_rt_info as   sri
+        where sri.cur_time=#{newDate}
+        order by upDown desc
+        limit 4
+    </select>
+
+    <select id="getStockUpDownCount" resultType="java.util.Map">
+        select
+        date_format(tmp.time,'%Y%m%d%H%i') as time ,
+        count(*) as count
+        from (select
+        (sri.cur_price-sri.pre_close_price)/sri.pre_close_price as ud,
+        sri.cur_time as time
+        from stock_rt_info sri
+        where sri.cur_time BETWEEN #{newStartDate} and #{newEndDate}
+        having ud
+        <if test="flag==1">
+            >=0.1
+        </if>
+        <if test="flag==0">
+            &lt;=-0.1
+        </if>
+        )
+        as tmp
+        group by tmp.time
+        order by tmp.time asc
+    </select>
+
+    <!--<select id="getStockIncreaseRangeInfoByDate" resultType="java.util.Map">
+        select
+            tmp2.title,
+            count(*) as count
+        from
+            (select
+            CASE
+            WHEN tmp.rate > 0.07 THEN  '>7%'
+            WHEN tmp.rate > 0.05 AND tmp.rate &lt;= 0.07 THEN '5~7%'
+            WHEN tmp.rate > 0.03 AND tmp.rate &lt;= 0.05 THEN '3~5%'
+            WHEN tmp.rate > 0 AND tmp.rate &lt;= 0.03 THEN '0~3%'
+            WHEN tmp.rate > -0.03 AND tmp.rate &lt;= 0 THEN '-3~0%'
+            WHEN tmp.rate > -0.05 AND tmp.rate &lt;= -0.03 THEN '-5~-3%'
+            WHEN tmp.rate > -0.07 AND tmp.rate &lt;= -0.05 THEN '-7~-5%'
+            ELSE '&lt;-7%'
+            END 'title'
+            from
+            (select
+            (sri.cur_price-sri.pre_close_price)/sri.pre_close_price as rate
+            from stock_rt_info as sri
+            where sri.cur_time=#{newDate})
+            as tmp)
+            as tmp2
+        group by tmp2.title
+    </select>-->
+    <!--当sql存在大量的转义符，建议使用CDATA进行处理，当工程解析xml时候，不会对CDATA包裹的sql语句做处理-->
+    <select id="getStockIncreaseRangeInfoByDate" resultType="java.util.Map">
+         <![CDATA[
+        select
+            tmp2.title,
+            count(*) as count
+        from
+            (select
+            CASE
+            WHEN tmp.rate > 0.07 THEN  '>7%'
+            WHEN tmp.rate > 0.05 AND tmp.rate <= 0.07 THEN '5~7%'
+            WHEN tmp.rate > 0.03 AND tmp.rate <= 0.05 THEN '3~5%'
+            WHEN tmp.rate > 0 AND tmp.rate <= 0.03 THEN '0~3%'
+            WHEN tmp.rate > -0.03 AND tmp.rate <= 0 THEN '-3~0%'
+            WHEN tmp.rate > -0.05 AND tmp.rate <= -0.03 THEN '-5~-3%'
+            WHEN tmp.rate > -0.07 AND tmp.rate <= -0.05 THEN '-7~-5%'
+            ELSE '<-7%'
+            END 'title'
+            from
+            (select
+            (sri.cur_price-sri.pre_close_price)/sri.pre_close_price as rate
+            from stock_rt_info as sri
+            where sri.cur_time=#{newDate})
+            as tmp)
+            as tmp2 group by tmp2.title
+        ]]>
+    </select>
+
     <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
         delete from stock_rt_info
         where  id = #{id,jdbcType=BIGINT} 
