@@ -20,6 +20,7 @@
     <modules>
         <module>stock_common</module>
         <module>stock_backend</module>
+        <module>stock_job</module>
     </modules>
 
     <!--抽取依赖的资源版本号，方面后续调整-->

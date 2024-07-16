@@ -1,5 +1,7 @@
 package com.hzy.stock.config;
 
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,7 +17,25 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
  * 由于使用jdk序列化的方式的阅读性比较差且序列化后的内容数据比较大会占用很大的内存，所以我们换一种序列化方式
  */
 @Configuration
-public class RedisCacheConfig {
+public class CacheConfig {
+
+    /**
+     * 构建本地缓存的bean
+     * @return
+     */
+    @Bean
+    public Cache<String,Object> caffieineCache(){
+        Cache<String, Object> cache = Caffeine
+                .newBuilder()
+                .maximumSize(200)//设置缓存数量上限
+//                .expireAfterAccess(1, TimeUnit.SECONDS)//访问1秒后删除
+//                .expireAfterWrite(1,TimeUnit.SECONDS)//写入1秒后删除
+                .initialCapacity(100)// 初始的缓存空间大小
+                .recordStats()//开启统计
+                .build();
+        return cache;
+    }
+
 
     /**
      * 配置redisTemplate bean，自定义数据的序列化方式，这里的名字必须为redisTemplate，否则场景依赖会自动装配，这里定义就覆盖了自动转配的默认jdk序列化方式

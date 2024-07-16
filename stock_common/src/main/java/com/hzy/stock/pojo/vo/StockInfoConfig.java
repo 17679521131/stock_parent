@@ -26,4 +26,23 @@ public class StockInfoConfig {
     //外盘ID集合
     @ApiModelProperty("封装国外大盘编码集合")
     private List<String> outer;
+
+    //单股涨幅区间
+    @ApiModelProperty("封装单股涨幅区间")
+    private List<String> upDownRange;
+
+    /**
+     * 大盘，外盘，个股公共的url
+     */
+    @ApiModelProperty("大盘，外盘，个股公共的url")
+    private String marketUrl;
+
+
+    /**
+     * 板块采集的url地址
+     */
+    @ApiModelProperty("板块采集的url地址")
+    private String blockUrl;
+
+
 }

@@ -2,6 +2,8 @@ package com.hzy.stock.mapper;
 
 import com.hzy.stock.pojo.entity.StockBusiness;
 
+import java.util.List;
+
 /**
 * @author daocaoaren
 * @description 针对表【stock_business(主营业务表)】的数据库操作Mapper
@@ -21,5 +23,11 @@ public interface StockBusinessMapper {
     int updateByPrimaryKeySelective(StockBusiness record);
 
     int updateByPrimaryKey(StockBusiness record);
+
+    /**
+     * 查询所有A股各个股票的编码
+     * @return
+     */
+    List<String>  getAllStockCode();
 
 }

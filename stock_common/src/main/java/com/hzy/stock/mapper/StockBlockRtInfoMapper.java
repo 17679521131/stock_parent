@@ -2,6 +2,7 @@ package com.hzy.stock.mapper;
 
 import com.hzy.stock.pojo.domain.StockBlockDomain;
 import com.hzy.stock.pojo.entity.StockBlockRtInfo;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.Date;
 import java.util.List;
@@ -35,4 +36,12 @@ public interface StockBlockRtInfoMapper {
      * @return
      */
     List<StockBlockDomain> getStockBlockInfoLimit(Date lastDate);
+
+    /**
+     * 批量插入板块数据
+     * @param list
+     * @return
+     */
+    int insertAllData(@Param("list") List<StockBlockRtInfo> list);
+
 }

@@ -11,7 +11,7 @@ import java.util.Date;
 /**
  * @author daocaoaren
  * @date 2024/7/15 16:54
- * @description :定义大盘领域对象，封装返回去的数据
+ * @description :定义大盘领域对象，封装返回去的数据/对应国内指数
  */
 @Data
 @ApiModel("大盘数据")
@@ -52,11 +52,6 @@ public class InnerMarketDomain {
      */
     @ApiModelProperty("交易金额")
     private Long tradeVol;
-    /**
-     * 涨跌值
-     */
-    @ApiModelProperty("涨跌值")
-    private BigDecimal upDownValue;
     /**
      * 涨跌幅
      */

@@ -40,7 +40,6 @@
         smi.open_point as openPoint,
         smi.cur_point as curPoint,
         smi.pre_close_point as preClosePoint,
-
         smi.trade_amount as tradeAmt,
         smi.trade_volume as tradeVol,
 
@@ -55,6 +54,21 @@
         </foreach>
         and smi.cur_time=#{newDate}
     </select>
+
+    <select id="getStockTradeAmtMin" resultType="java.util.Map">
+        select
+        date_format(smi.cur_time,'%Y%m%d%H%i') as time,
+        sum(smi.trade_amount)  as count
+        from stock_market_index_info as smi
+        where smi.market_code in
+        <foreach collection="innerCode" item="marketId" open="("  separator="," close=")">
+            #{marketId}
+        </foreach>
+        and smi.cur_time between #{openDate} and #{lastDate}
+        group by smi.cur_time
+        order by time asc;
+    </select>
+
 
     <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
         delete from stock_market_index_info
@@ -100,6 +114,22 @@
                 <if test="curTime != null">#{curTime,jdbcType=TIMESTAMP},</if>
         </trim>
     </insert>
+
+    <insert id="insertSelectData">
+        insert into stock_market_index_info
+        ( id,market_code,market_name,
+         pre_close_point,open_point,cur_point,
+         min_point,max_point,trade_amount,trade_volume,cur_time
+        )
+        values
+        <foreach collection="list" item="smi" separator=",">
+            (#{smi.id,jdbcType=BIGINT},#{smi.marketCode,jdbcType=CHAR},#{smi.marketName,jdbcType=VARCHAR}
+            ,#{smi.preClosePoint,jdbcType=DECIMAL},#{smi.openPoint,jdbcType=DECIMAL},#{smi.curPoint,jdbcType=DECIMAL}
+            ,#{smi.minPoint,jdbcType=DECIMAL},#{smi.maxPoint,jdbcType=DECIMAL},#{smi.tradeAmount,jdbcType=BIGINT},#{smi.tradeVolume,jdbcType=DECIMAL},#{smi.curTime,jdbcType=TIMESTAMP}
+            )
+        </foreach>
+    </insert>
+
     <update id="updateByPrimaryKeySelective" parameterType="com.hzy.stock.pojo.entity.StockMarketIndexInfo">
         update stock_market_index_info
         <set>

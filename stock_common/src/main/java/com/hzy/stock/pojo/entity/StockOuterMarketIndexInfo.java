@@ -3,13 +3,20 @@ package com.hzy.stock.pojo.entity;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Date;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * 外盘详情信息表
  * @TableName stock_outer_market_index_info
  */
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class StockOuterMarketIndexInfo implements Serializable {
     /**
      * 主键ID

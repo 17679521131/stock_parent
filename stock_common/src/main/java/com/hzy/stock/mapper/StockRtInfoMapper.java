@@ -1,6 +1,14 @@
 package com.hzy.stock.mapper;
 
+import com.hzy.stock.pojo.domain.Stock4EveryDayDomain;
+import com.hzy.stock.pojo.domain.Stock4MinuteDomain;
+import com.hzy.stock.pojo.domain.StockUpdownDomain;
 import com.hzy.stock.pojo.entity.StockRtInfo;
+import org.apache.ibatis.annotations.Param;
+
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 /**
 * @author daocaoaren
@@ -22,4 +30,74 @@ public interface StockRtInfoMapper {
 
     int updateByPrimaryKey(StockRtInfo record);
 
+    /**
+     * 分页查询股票最新数据，并按照涨幅排序查询,展示出股票涨幅最大的数据
+     * @param newDate 当前最新时间对象
+     * @return
+     */
+    List<StockUpdownDomain> getNewDateStockPageInfo(@Param("newDate") Date newDate);
+
+    /**
+     * 设计股票涨幅榜模块，需求是查询涨幅榜最大的前4条数据展示在前端
+     * @return
+     */
+    List<StockUpdownDomain> getStockIncreaseMax(@Param("newDate") Date newDate);
+
+    /**
+     * 统计指定时间范围内，股票涨跌停的数量流水
+     * @param newStartDate 最新的股票开盘时间
+     * @param newEndDate 最新截止时间
+     * @param flag 1表示统计涨停，0表示跌停
+     * @return
+     */
+    List<Map> getStockUpDownCount(@Param("newStartDate") Date newStartDate,@Param("newEndDate") Date newEndDate,@Param("flag") int flag);
+
+    /**
+     * 获取指定时间内，各个涨幅区间的各个股票数量
+     * @param newDate 当前时间
+     * @return
+     */
+    List<Map> getStockIncreaseRangeInfoByDate(@Param("newDate") Date newDate);
+
+    /**
+     * 根据当前时间，以及最新开盘时间，股票编号获取该股票的流水信息
+     * @param stockCode
+     * @param startDate
+     * @param endDate
+     * @return
+     */
+    List<Stock4MinuteDomain> getStockInfoByDateAndCode(@Param("stockCode") String stockCode, @Param("startDate") Date startDate, @Param("endDate") Date endDate);
+
+    /**
+     * 查询指定日期范围内指定股票每天的交易数据
+     * @param stockCode 股票编号
+     * @param startDate 开始时间
+     * @param endDate 结束时间
+     * @return
+     */
+    List<Stock4EveryDayDomain> getStockInfoByEveryDay(@Param("stockCode") String stockCode, @Param("startDate") Date startDate, @Param("endDate") Date endDate);
+
+    /**
+     * 查询指定的时间范围内，每天的收盘时间，作为getStockInfoByEveryDay方法的拆分中的条件
+     * @param stockCode 股票编号
+     * @param startDate 开始时间
+     * @param endDate 结束时间
+     * @return
+     */
+    List<Date> getStockInfoEveryDay(@Param("stockCode") String stockCode, @Param("startDate") Date startDate, @Param("endDate") Date endDate);
+
+    /**
+     * 根据getStockInfoEveryDay查询到的每日交易收盘的时间进行查询每日股票的数据返回封装到Stock4EveryDayDomain绘制日k线
+     * @param stockCode 股票编号
+     * @param dateList 每日交易收盘时间
+     * @return
+     */
+    List<Stock4EveryDayDomain> getStockInfoBySelectEverDay(@Param("stockCode") String stockCode, @Param("dateList") List<Date> dateList);
+
+    /**
+     * 批量插入个股数据
+     * @param list
+     * @return
+     */
+    int insertAllData(@Param("list") List<StockRtInfo> list);
 }

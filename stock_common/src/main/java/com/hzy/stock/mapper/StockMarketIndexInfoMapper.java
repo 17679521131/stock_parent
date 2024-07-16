@@ -4,8 +4,10 @@ import com.hzy.stock.pojo.domain.InnerMarketDomain;
 import com.hzy.stock.pojo.entity.StockMarketIndexInfo;
 import org.apache.ibatis.annotations.Param;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 /**
 * @author daocaoaren
@@ -35,4 +37,21 @@ public interface StockMarketIndexInfoMapper {
      */
     List<InnerMarketDomain> getMarketInfo(@Param("newDate") Date newDate,@Param("innerCode") List<String> innerCode);
 
+
+
+    /**
+     *统计A股大盘T日和T-1日成交量
+     * @param lastDate
+     * @param openDate
+     * @param innerCode
+     * @return
+     */
+    List<Map> getStockTradeAmtMin(@Param("innerCode") List<String> innerCode,@Param("openDate") Date openDate,@Param("lastDate") Date lastDate);
+
+
+    /**
+     * 批量插入最新挖掘的股票大盘数据
+     * @param list 封装成list集合了
+     */
+    int insertSelectData(@Param("list") ArrayList<StockMarketIndexInfo> list);
 }
