@@ -27,10 +27,15 @@ public class TestStockTimerTaskServiceImpl {
      * 测试是否可以拿到原始数据
      */
     @Test
-    public void test01(){
-        //stockTimerTaskService.getInnerMarketInfo();
-        //stockTimerTaskService.getStockRtIndex();
-        stockTimerTaskService.getStockSectorRtIndex();
+    public void test01() throws InterruptedException {
+//        stockTimerTaskService.getInnerMarketInfo();
+//        stockTimerTaskService.getStockRtIndex();
+//        stockTimerTaskService.getStockSectorRtIndex();
+
+        //目的让主线程休眠，等子线程执行完毕
+        //Thread.sleep(5000);
+
+        stockTimerTaskService.getOuterMarketInfo();
     }
 
 

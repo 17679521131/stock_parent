@@ -1,8 +1,6 @@
 package com.hzy.stock.mapper;
 
-import com.hzy.stock.pojo.domain.Stock4EveryDayDomain;
-import com.hzy.stock.pojo.domain.Stock4MinuteDomain;
-import com.hzy.stock.pojo.domain.StockUpdownDomain;
+import com.hzy.stock.pojo.domain.*;
 import com.hzy.stock.pojo.entity.StockRtInfo;
 import org.apache.ibatis.annotations.Param;
 
@@ -100,4 +98,20 @@ public interface StockRtInfoMapper {
      * @return
      */
     int insertAllData(@Param("list") List<StockRtInfo> list);
+
+
+    /**
+     * 根据最新时间和股票编码，查询股票最新的分时数据
+     * @param code
+     * @param endDate
+     * @return
+     */
+    StockNewPriceDomain getStockNewPriceByCode(@Param("code") String code, @Param("endDate") Date endDate);
+
+    /**
+     * 根据股票编码，倒序显示最新的前10条交易数据
+     * @param code
+     * @return
+     */
+    List<StockNewTransactionDomain> getStockNewTransactionByCode(@Param("code") String code);
 }

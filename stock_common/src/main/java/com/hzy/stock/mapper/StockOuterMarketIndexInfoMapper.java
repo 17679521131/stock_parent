@@ -1,6 +1,11 @@
 package com.hzy.stock.mapper;
 
+import com.hzy.stock.pojo.domain.OuterMarketDomain;
 import com.hzy.stock.pojo.entity.StockOuterMarketIndexInfo;
+import org.apache.ibatis.annotations.Param;
+
+import java.util.Date;
+import java.util.List;
 
 /**
 * @author daocaoaren
@@ -22,4 +27,16 @@ public interface StockOuterMarketIndexInfoMapper {
 
     int updateByPrimaryKey(StockOuterMarketIndexInfo record);
 
+    /**
+     * 由于国外大盘开盘时间不稳定，所以我们是通过时间和大盘点数降序获取
+     * @return
+     */
+    List<OuterMarketDomain> getOutMarketInfoByDate();
+
+    /**
+     * 插入最新获取的国外大盘数据
+     * @param list 国外大盘数据集合
+     * @return
+     */
+    int insertAllData(@Param("list") List<StockOuterMarketIndexInfo> list);
 }

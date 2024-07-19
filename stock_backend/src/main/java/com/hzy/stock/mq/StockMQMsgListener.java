@@ -40,6 +40,5 @@ public class StockMQMsgListener {
         caffeineCache.invalidate("innerMarketKey");
         //调用服务方法刷新数据
         stockService.getInnerMarketInfo();
-
     }
 }

@@ -168,5 +168,70 @@ public class StockController {
     }
 
 
+    /**
+     * 获取外盘指数数据
+     * @return
+     */
+    @ApiOperation(value = "获取外盘指数数据",notes = "获取外盘指数数据",httpMethod = "GET")
+    @GetMapping("/external/index")
+    public R<List<OuterMarketDomain>> getExternalIndex(){
+        return stockService.getOutMaketInfo();
+    }
+
+    /**
+     * 股票搜索功能，模糊查询返回股票编码名称和编码
+     * @param searchStr 模糊输入的股票半编码
+     * @return
+     */
+    @ApiImplicitParams({
+            @ApiImplicitParam(paramType = "query",dataType = "String",name = "searchStr",value = "模糊输入的股票半编码")//@RequestParam注解的参数paramType参数指定请求头绑定的名称
+    })
+    @ApiOperation(value = "股票搜索功能",notes = "股票搜索功能",httpMethod = "GET")
+    @GetMapping("/stock/search")
+    public R<List<Map>> getStockNameAndCode(String searchStr){
+        return stockService.getStockNameAndCode(searchStr);
+    }
+
+
+    /**
+     * 获取股票业务信息
+     * @param code 股票编码
+     * @return
+     */
+    @ApiImplicitParams({
+            @ApiImplicitParam(paramType = "query",dataType = "String",name = "code",value = "股票编码")//@RequestParam注解的参数paramType参数指定请求头绑定的名称
+    })
+    @ApiOperation(value = "获取股票业务信息",notes = "获取股票业务信息",httpMethod = "GET")
+    @GetMapping("/stock/describe")
+    public R<StockBusinessDomain> getStockBusinessInfo(String code){
+        return stockService.getStockBusinessInfo(code);
+    }
+
+
+    /**
+     * 获取个股票最分时新行情数据
+     * @param code 股票编码
+     * @return
+     */
+    @GetMapping("/stock/screen/second/detail")
+    public R<StockNewPriceDomain> getStockNewPriceInfo(String code){
+        return stockService.getStockNewPriceInfo(code);
+    }
+
+    /**
+     * 获取股票最新交易量数据
+     * @param code 股票编码
+     * @return
+     */
+    @ApiImplicitParams({
+            @ApiImplicitParam(paramType = "query",dataType = "String",name = "code",value = "股票编码")//@RequestParam注解的参数paramType参数指定请求头绑定的名称
+    })
+    @ApiOperation(value = "获取股票最新交易量数据",notes = "获取股票最新交易量数据",httpMethod = "GET")
+    @GetMapping("/stock/screen/second")
+    public R<List<StockNewTransactionDomain>> getStockNewTransactionInfo(String code){
+        return stockService.getStockNewTransactionInfo(code);
+    }
+
+
 
 }

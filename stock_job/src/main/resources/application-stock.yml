@@ -11,3 +11,12 @@ stock:
     - b_FSSTI # 新加坡
   marketUrl: https://hq.sinajs.cn/list= # 大盘，外盘，个股公共的url
   blockUrl: http://vip.stock.finance.sina.com.cn/q/view/newSinaHy.php # 板块采集的url地址
+
+
+# 定时任务线程池基础参数
+task:
+  pool:
+    corePoolSize: 5 # 核心线程数
+    maxPoolSize: 20 # 设置最大线程数
+    keepAliveSeconds: 300 # 设置线程活跃时间，单位秒
+    queueCapacity: 100 # 设置队列容量

@@ -27,6 +27,15 @@
     <select id="getAllStockCode" resultType="java.lang.String">
         select stock_code from stock_business
     </select>
+    <select id="getStockNameAndCodeByStr" resultType="java.util.Map">
+            select stock_code as code,stock_name as name from stock_business
+            where stock_code like concat('%',#{searchStr},'%')
+    </select>
+    <select id="getStockBusinessInfoByCode" resultType="com.hzy.stock.pojo.domain.StockBusinessDomain">
+        select stock_code as code,block_name as trade,business,stock_name as name
+        from stock_business
+        where stock_code = #{code}
+    </select>
 
     <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
         delete from stock_business

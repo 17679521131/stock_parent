@@ -1,8 +1,11 @@
 package com.hzy.stock.mapper;
 
+import com.hzy.stock.pojo.domain.StockBusinessDomain;
 import com.hzy.stock.pojo.entity.StockBusiness;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
+import java.util.Map;
 
 /**
 * @author daocaoaren
@@ -30,4 +33,17 @@ public interface StockBusinessMapper {
      */
     List<String>  getAllStockCode();
 
+    /**
+     * 根据模糊字符串查询股票名字和编码
+     * @param searchStr
+     * @return
+     */
+    List<Map> getStockNameAndCodeByStr(@Param("searchStr") String searchStr);
+
+    /**
+     * 根据股票编码查询股票的行业信息
+     * @param code
+     * @return
+     */
+    StockBusinessDomain getStockBusinessInfoByCode(@Param("code") String code);
 }

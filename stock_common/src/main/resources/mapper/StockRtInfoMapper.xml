@@ -205,6 +205,20 @@
         </foreach>
         order by sri2.cur_time;
     </select>
+    <select id="getStockNewPriceByCode" resultType="com.hzy.stock.pojo.domain.StockNewPriceDomain">
+        select trade_amount as tradeAmt,pre_close_price as preClosePrice,
+               min_price as lowPrice,max_price as highPrice,open_price as openPrice,
+               trade_volume as tradeVol,cur_price as tradePrice,cur_time as curDate
+        from stock_rt_info
+        where stock_code=#{code} and cur_time=#{endDate}
+    </select>
+    <select id="getStockNewTransactionByCode" resultType="com.hzy.stock.pojo.domain.StockNewTransactionDomain">
+        select cur_time as curDate,trade_amount as tradeAmt,trade_volume as tradeVol,cur_price as tradePrice
+        from stock_rt_info
+        where stock_code=#{code}
+        order by cur_time desc limit 10
+    </select>
+
 
     <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
         delete from stock_rt_info

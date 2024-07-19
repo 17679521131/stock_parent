@@ -5,9 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import com.hzy.stock.mapper.StockBlockRtInfoMapper;
-import com.hzy.stock.mapper.StockMarketIndexInfoMapper;
-import com.hzy.stock.mapper.StockRtInfoMapper;
+import com.hzy.stock.mapper.*;
 import com.hzy.stock.pojo.domain.*;
 import com.hzy.stock.pojo.entity.StockBlockRtInfo;
 import com.hzy.stock.pojo.entity.StockMarketIndexInfo;
@@ -56,6 +54,12 @@ public class StockServiceImpl implements StockService {
     @Autowired
     private Cache<String,Object> caffineCache;
 
+    @Autowired
+    private StockOuterMarketIndexInfoMapper stockOuterMarketIndexInfoMapper;
+
+    @Autowired
+    private StockBusinessMapper stockBusinessMapper;
+
     /**
      * 获取国内最新大盘的数据
      * @return
@@ -98,7 +102,7 @@ public class StockServiceImpl implements StockService {
     }
 
     /**
-     * 分页查询股票最新数据，并按照涨幅排序查询,展示出股票涨幅最大的数据
+     * 分页查询个股票最新数据，并按照涨幅排序查询,展示出股票涨幅最大的数据，也就是涨幅榜查看更多功能，列举出所有个股的情况
      * @param page
      * @param pageSize
      * @return
@@ -127,7 +131,7 @@ public class StockServiceImpl implements StockService {
     }
 
     /**
-     * 设计股票涨幅榜模块，需求是查询涨幅榜最大的前4条数据展示在前端
+     * 设计股票涨幅榜模块，需求是查询涨幅榜最大的前4条数据展示在前端，将个股涨跌幅最大的四条个股显示在涨幅榜
      * @return
      */
     @Override
@@ -143,7 +147,7 @@ public class StockServiceImpl implements StockService {
     }
 
     /**
-     * 统计股票最新交易日内每分钟的跌停的股票数量
+     * 统计股票最新交易日内每分钟的涨跌停的股票数量
      * @return
      */
     @Override
@@ -327,7 +331,7 @@ public class StockServiceImpl implements StockService {
     }
 
     /**
-     * 功能描述：查询单个个股的分时行情数据，也就是统计指定股票T日每分钟的交易数据；
+     * 功能描述：查询单个个股的分时行情数据，也就是统计指定股票T日每分钟的交易数据； //在涨幅榜点击查看更多再点击单个股票触发
      * 如果当前日期不在有效时间内，则以最近的一个股票交易时间作为查询时间点
      * @param stockCode 股票编码
      * @return
@@ -391,6 +395,76 @@ public class StockServiceImpl implements StockService {
         }
         //3.封装返回数据
         return R.ok(data);
+    }
+
+    /**
+     * 获取最新外盘指数
+     * @return
+     */
+    @Override
+    public R<List<OuterMarketDomain>> getOutMaketInfo() {
+        //由于国外开盘时间不稳定，所以根据时间和大盘点数降序获取前四条数据即可
+        //调用mapper接口获取最新外盘指数
+        List<OuterMarketDomain> data = stockOuterMarketIndexInfoMapper.getOutMarketInfoByDate();
+        //判断非空
+        if(CollectionUtils.isEmpty(data)){
+            data = new ArrayList<>();
+            log.error("没有查询到数据");
+        }
+        return R.ok(data);
+    }
+
+    /**
+     * 股票搜索功能，模糊查询返回股票编码名称和编码
+     * @param searchStr 模糊输入的股票半编码
+     * @return
+     */
+    @Override
+    public R<List<Map>> getStockNameAndCode(String searchStr) {
+        //根据输入的字符串返回对应的股票编码和名称，调用mapper接口
+        List<Map> list =  stockBusinessMapper.getStockNameAndCodeByStr(searchStr);
+
+        return R.ok(list);
+    }
+
+    /**
+     * 获取股票业务信息
+     * @param code 股票编码
+     * @return
+     */
+    @Override
+    public R<StockBusinessDomain> getStockBusinessInfo(String code) {
+        //调用mapper接口获取股票业务信息
+        StockBusinessDomain stockBusiness =  stockBusinessMapper.getStockBusinessInfoByCode(code);
+        return R.ok(stockBusiness);
+    }
+
+    /**
+     * 获取个股票最分时新行情数据
+     * @param code 股票编码
+     * @return
+     */
+    @Override
+    public R<StockNewPriceDomain> getStockNewPriceInfo(String code) {
+        //获取最新有效时间
+        DateTime dateTime = DateTimeUtil.getLastDate4Stock(DateTime.now());
+        Date endDate = dateTime.toDate();
+        //调用mapper接口根据股票编码获取最新分时数据
+        StockNewPriceDomain stockNewPrice =  stockRtInfoMapper.getStockNewPriceByCode(code,endDate);
+        //返回数据
+        return R.ok(stockNewPrice);
+    }
+
+    /**
+     * 获取股票最新交易量数据
+     * @param code 股票编码
+     * @return
+     */
+    @Override
+    public R<List<StockNewTransactionDomain>> getStockNewTransactionInfo(String code) {
+        //直接调用接口将时间降序查询显示前十条数据即可
+        List<StockNewTransactionDomain> stockNewTransactions =  stockRtInfoMapper.getStockNewTransactionByCode(code);
+        return R.ok(stockNewTransactions);
     }
 
 

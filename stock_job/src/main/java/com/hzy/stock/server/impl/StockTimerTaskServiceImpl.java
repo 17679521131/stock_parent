@@ -1,14 +1,13 @@
 package com.hzy.stock.server.impl;
 
 import com.google.common.collect.Lists;
-import com.hzy.stock.mapper.StockBlockRtInfoMapper;
-import com.hzy.stock.mapper.StockBusinessMapper;
-import com.hzy.stock.mapper.StockMarketIndexInfoMapper;
-import com.hzy.stock.mapper.StockRtInfoMapper;
+import com.hzy.stock.mapper.*;
 import com.hzy.stock.pojo.entity.StockBlockRtInfo;
 import com.hzy.stock.pojo.entity.StockMarketIndexInfo;
+import com.hzy.stock.pojo.entity.StockOuterMarketIndexInfo;
 import com.hzy.stock.pojo.entity.StockRtInfo;
 import com.hzy.stock.pojo.vo.StockInfoConfig;
+import com.hzy.stock.pojo.vo.TaskThreadPoolInfo;
 import com.hzy.stock.server.StockTimerTaskService;
 import com.hzy.stock.utils.DateTimeUtil;
 import com.hzy.stock.utils.IdWorker;
@@ -23,6 +22,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.server.reactive.HttpHandler;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -68,6 +68,13 @@ public class StockTimerTaskServiceImpl implements StockTimerTaskService {
 
     @Autowired
     private StockBlockRtInfoMapper stockBlockRtInfoMapper;
+
+    @Autowired
+    private ThreadPoolTaskExecutor threadPoolTaskExecutor;
+
+    @Autowired
+    private StockOuterMarketIndexInfoMapper stockOuterMarketIndexInfoMapper;
+
 
 
 
@@ -184,18 +191,20 @@ public class StockTimerTaskServiceImpl implements StockTimerTaskService {
         List<String> allStockCode = stockBusinessMapper.getAllStockCode();
         //将个股添加大盘业务前缀 sh，sz
         allStockCode = allStockCode.stream().map(code->code.startsWith("6")?"sh"+code:"sz"+code).collect(Collectors.toList());
+        long startTime = System.currentTimeMillis();
         //将所有个股编码拆分成若干个小集合
         Lists.partition(allStockCode, 15).forEach(codes->{
-            //分批次采集数据 设置url地址
+            //  原始方案，由于串行执行的话延迟太大，引入线程池异步交互
+            /*//分批次采集数据 设置url地址
             String url = stockInfoConfig.getMarketUrl()+String.join(",",codes);
-            /*//添加请求头
+            //添加请求头
             HttpHeaders httpHeaders = new HttpHeaders();
             //添加用户标识
             httpHeaders.set("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.3.1 Safari/605.1.15");
             //添加防盗链
             httpHeaders.set("Referer","https://finance.sina.com.cn/");
             //创建请求实体
-            HttpEntity<String> requestEntity = new HttpEntity<>(httpHeaders);*/
+            HttpEntity<String> requestEntity = new HttpEntity<>(httpHeaders);*//*
             //发送请求
             ResponseEntity<String> responseEntity = restTemplate.exchange(url, HttpMethod.GET, httpEntity, String.class);
             if (responseEntity.getStatusCodeValue()!=200) {
@@ -204,8 +213,10 @@ public class StockTimerTaskServiceImpl implements StockTimerTaskService {
             }
             //获取响应体js数据
             String body = responseEntity.getBody();
+
             //调用工具类解析获取各个数据
             List<StockRtInfo> list = parserStockInfoUtil.parser4StockOrMarketInfo(body, ParseType.ASHARE);
+            log.info("数据量：{}",list.size());
             log.info("当前时间点:{},采集的个股数据:{}",DateTime.now().toString("yyyy-MM-dd HH:mm:ss"),list);
             //将调用mapper接口数据保存到数据库中  //批量插入
             int row = stockRtInfoMapper.insertAllData(list);
@@ -213,12 +224,75 @@ public class StockTimerTaskServiceImpl implements StockTimerTaskService {
                 log.info("当前时间点:{},插入数据:{}成功",DateTime.now().toString("yyyy-MM-dd HH:mm:ss"),list);
             }else {
                 log.info("当前时间点:{},插入数据:{}失败",DateTime.now().toString("yyyy-MM-dd HH:mm:ss"),list);
-            }
+            }*/
+
+
+//            //新方案1：由于原始方案采集个股数据时将集合分片，然后分批次串行采集数据，效率不高，存在较高的采集延迟，故采用多线程
+//            new Thread(()->{
+//                //分批次采集数据 设置url地址
+//                String url = stockInfoConfig.getMarketUrl()+String.join(",",codes);
+//                //添加请求头
+////                HttpHeaders httpHeaders = new HttpHeaders();
+////                //添加用户标识
+////                httpHeaders.set("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.3.1 Safari/605.1.15");
+////                //添加防盗链
+////                httpHeaders.set("Referer","https://finance.sina.com.cn/");
+////                //创建请求实体
+////                HttpEntity<String> requestEntity = new HttpEntity<>(httpHeaders);
+//                //发送请求
+//                ResponseEntity<String> responseEntity = restTemplate.exchange(url, HttpMethod.GET, httpEntity, String.class);
+//                if (responseEntity.getStatusCodeValue()!=200) {
+//                    log.error("当前时间点:{},请求个股数据失败,状态码:{}",DateTime.now().toString("yyyy-MM-dd HH:mm:ss"),responseEntity.getStatusCodeValue());
+//                    return;
+//                }
+//                //获取响应体js数据
+//                String body = responseEntity.getBody();
+//
+//                //调用工具类解析获取各个数据
+//                List<StockRtInfo> list = parserStockInfoUtil.parser4StockOrMarketInfo(body, ParseType.ASHARE);
+//                log.info("数据量：{}",list.size());
+//                log.info("当前时间点:{},采集的个股数据:{}",DateTime.now().toString("yyyy-MM-dd HH:mm:ss"),list);
+//                //将调用mapper接口数据保存到数据库中  //批量插入
+//                int row = stockRtInfoMapper.insertAllData(list);
+//                if (row>0) {
+//                    log.info("当前时间点:{},插入数据:{}成功",DateTime.now().toString("yyyy-MM-dd HH:mm:ss"),list);
+//                }else {
+//                    log.info("当前时间点:{},插入数据:{}失败",DateTime.now().toString("yyyy-MM-dd HH:mm:ss"),list);
+//                }
+//            }).start();
+
+            //方案2:引入线程池
+            threadPoolTaskExecutor.execute(()->{
+                //分批次采集数据 设置url地址
+                String url = stockInfoConfig.getMarketUrl()+String.join(",",codes);
+                //发送请求
+                ResponseEntity<String> responseEntity = restTemplate.exchange(url, HttpMethod.GET, httpEntity, String.class);
+                if (responseEntity.getStatusCodeValue()!=200) {
+                    log.error("当前时间点:{},请求个股数据失败,状态码:{}",DateTime.now().toString("yyyy-MM-dd HH:mm:ss"),responseEntity.getStatusCodeValue());
+                    return;
+                }
+                //获取响应体js数据
+                String body = responseEntity.getBody();
+
+                //调用工具类解析获取各个数据
+                List<StockRtInfo> list = parserStockInfoUtil.parser4StockOrMarketInfo(body, ParseType.ASHARE);
+                log.info("数据量：{}",list.size());
+                log.info("当前时间点:{},采集的个股数据:{}",DateTime.now().toString("yyyy-MM-dd HH:mm:ss"),list);
+                //将调用mapper接口数据保存到数据库中  //批量插入
+                int row = stockRtInfoMapper.insertAllData(list);
+                if (row>0) {
+                    log.info("当前时间点:{},插入数据:{}成功",DateTime.now().toString("yyyy-MM-dd HH:mm:ss"),list);
+                }else {
+                    log.info("当前时间点:{},插入数据:{}失败",DateTime.now().toString("yyyy-MM-dd HH:mm:ss"),list);
+                }
+            });
         });
+        Long takeTime = System.currentTimeMillis()- startTime;
+        log.info("本次采集话费时间:{}ms",takeTime);
     }
 
     /**
-     * 获取数板块数据插入数据库
+     * 获取板块数据插入数据库
      */
     @Override
     public void getStockSectorRtIndex() {
@@ -238,16 +312,46 @@ public class StockTimerTaskServiceImpl implements StockTimerTaskService {
         log.info("当前时间点:{},采集的板块数据:{}",DateTime.now().toString("yyyy-MM-dd HH:mm:ss"),list);
         //数据分片保存到数据库下 行业板块类目大概50个，可每小时查询一次即可
         Lists.partition(list,20).forEach(lists->{
-            //将调用mapper接口数据保存到数据库中  //批量插入
-            int row = stockBlockRtInfoMapper.insertAllData(lists);
-            if (row>0) {
-                log.info("当前时间点:{},插入数据:{}成功",DateTime.now().toString("yyyy-MM-dd HH:mm:ss"),lists);
-            }else {
-                log.info("当前时间点:{},插入数据:{}失败",DateTime.now().toString("yyyy-MM-dd HH:mm:ss"),lists);
-            }
+            threadPoolTaskExecutor.execute(()->{
+                //将调用mapper接口数据保存到数据库中  //批量插入
+                int row = stockBlockRtInfoMapper.insertAllData(lists);
+                if (row>0) {
+                    log.info("当前时间点:{},插入数据:{}成功",DateTime.now().toString("yyyy-MM-dd HH:mm:ss"),lists);
+                }else {
+                    log.info("当前时间点:{},插入数据:{}失败",DateTime.now().toString("yyyy-MM-dd HH:mm:ss"),lists);
+                }
+            });
         });
 
 
+
+    }
+
+    /**
+     * 获取国外大盘最新数据
+     */
+    @Override
+    public void getOuterMarketInfo() {
+        //获取国外大盘名称集合
+        List<String> outerMarket = stockInfoConfig.getOuter();
+        //获取请求url地址
+        String url = stockInfoConfig.getMarketUrl();
+        //将url拼接起来
+        String marketUrl = url+String.join(",",outerMarket);
+        //发起请求
+        ResponseEntity<String> responseEntity = restTemplate.exchange(marketUrl, HttpMethod.GET, httpEntity, String.class);
+        //获取响应的js数据
+        String body = responseEntity.getBody();
+        //调用工具类解析获取各个数据
+        List<StockOuterMarketIndexInfo> list = parserStockInfoUtil.parser4StockOrMarketInfo(body, ParseType.OUTER);
+        log.info("获取外盘数据:{}",list);
+        //将调用mapper接口数据保存到数据库中  //批量插入
+        int row = stockOuterMarketIndexInfoMapper.insertAllData(list);
+        if (row>0) {
+            log.info("当前时间点:{},插入国外大盘数据:{}成功",DateTime.now().toString("yyyy-MM-dd HH:mm:ss"),list);
+        }else {
+            log.info("当前时间点:{},插入国外大盘数据:{}失败",DateTime.now().toString("yyyy-MM-dd HH:mm:ss"),list);
+        }
 
     }
 

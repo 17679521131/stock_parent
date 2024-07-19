@@ -18,7 +18,7 @@ spring:
       # 并发效率会有所下降，如果需要可以通过配置 useUnfairLock 属性为 true 使用非公平锁。
       maxWait: 60000
   profiles:
-    active: stock,mq # 激活其他配置文件，如果有多个文件可以用逗号隔开
+    active: stock,mq,job # 激活其他配置文件，如果有多个文件可以用逗号隔开
 
 #mybatis配置
 mybatis:

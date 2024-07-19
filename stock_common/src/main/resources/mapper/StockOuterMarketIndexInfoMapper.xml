@@ -26,6 +26,13 @@
         from stock_outer_market_index_info
         where  id = #{id,jdbcType=BIGINT} 
     </select>
+    <select id="getOutMarketInfoByDate" resultType="com.hzy.stock.pojo.domain.OuterMarketDomain">
+        select market_name as name,cur_point as curPoint,
+               updown as upDown,rose,cur_time as curTime
+        from stock_outer_market_index_info
+        order by curTime desc,curPoint desc limit 4;
+
+    </select>
 
     <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
         delete from stock_outer_market_index_info
@@ -40,6 +47,20 @@
         ,#{curPoint,jdbcType=DECIMAL},#{updown,jdbcType=DECIMAL},#{rose,jdbcType=DECIMAL}
         ,#{curTime,jdbcType=TIMESTAMP})
     </insert>
+    <insert id="insertAllData">
+        insert into stock_outer_market_index_info
+        ( id,market_code,market_name
+        ,cur_point,updown,rose
+        ,cur_time)
+        values
+            <foreach collection="list" item="out"  separator=",">
+                (#{out.id,jdbcType=BIGINT},#{out.marketCode,jdbcType=CHAR},#{out.marketName,jdbcType=VARCHAR}
+                ,#{out.curPoint,jdbcType=DECIMAL},#{out.updown,jdbcType=DECIMAL},#{out.rose,jdbcType=DECIMAL}
+                ,#{out.curTime,jdbcType=TIMESTAMP})
+            </foreach>
+
+    </insert>
+
     <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="com.hzy.stock.pojo.entity.StockOuterMarketIndexInfo" useGeneratedKeys="true">
         insert into stock_outer_market_index_info
         <trim prefix="(" suffix=")" suffixOverrides=",">
@@ -61,6 +82,7 @@
                 <if test="curTime != null">#{curTime,jdbcType=TIMESTAMP},</if>
         </trim>
     </insert>
+
     <update id="updateByPrimaryKeySelective" parameterType="com.hzy.stock.pojo.entity.StockOuterMarketIndexInfo">
         update stock_outer_market_index_info
         <set>

@@ -83,4 +83,38 @@ public interface StockService {
      * @return
      */
     R<List<Stock4EveryDayDomain>> stockScreenDKLine(String code);
+
+    /**
+     * 获取最新外盘数据
+     * @return
+     */
+    R<List<OuterMarketDomain>> getOutMaketInfo();
+
+    /**
+     * 股票搜索功能，模糊查询返回股票编码名称和编码
+     * @param searchStr 模糊输入的股票半编码
+     * @return
+     */
+    R<List<Map>> getStockNameAndCode(String searchStr);
+
+    /**
+     * 获取股票业务信息
+     * @param code 股票编码
+     * @return
+     */
+    R<StockBusinessDomain> getStockBusinessInfo(String code);
+
+    /**
+     * 获取个股票最分时新行情数据
+     * @param code 股票编码
+     * @return
+     */
+    R<StockNewPriceDomain> getStockNewPriceInfo(String code);
+
+    /**
+     * 获取股票最新交易量数据
+     * @param code 股票编码
+     * @return
+     */
+    R<List<StockNewTransactionDomain>> getStockNewTransactionInfo(String code);
 }

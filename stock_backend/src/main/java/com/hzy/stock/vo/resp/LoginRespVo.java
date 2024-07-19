@@ -9,6 +9,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 /**
  * @author daocaoaren
  * @date 2024/7/15 03:52
@@ -42,5 +44,30 @@ public class LoginRespVo {
      */
     @ApiModelProperty("昵称")
     private String nickName;
+
+    /**
+     * 性别
+     */
+    private Integer sex;
+
+    /**
+     * 状态
+     */
+    private Integer status;
+
+    /**
+     * 邮件
+     */
+    private String email;
+
+    /**
+     * 侧边栏权限树（不包含按钮权限）
+     */
+    private List<LoginRespPermission> menus;
+
+    /**
+     * 按钮权限标识
+     */
+    private List<String> permissions;
 
 }

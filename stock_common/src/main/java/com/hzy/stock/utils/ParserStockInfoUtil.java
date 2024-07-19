@@ -134,6 +134,7 @@ public class ParserStockInfoUtil {
         //组装实体对象
         StockOuterMarketIndexInfo smi = StockOuterMarketIndexInfo.builder()
                 .id(idWorker.nextId())
+                .marketName(marketName)
                 .marketCode(marketCode)
                 .curPoint(curPoint)
                 .updown(upDown)
