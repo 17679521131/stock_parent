@@ -26,4 +26,6 @@ public interface SysUserMapper {
     //根据名字查询用户
     SysUser findUserInfoByName(@Param("userName") String userName);
 
+
+
 }

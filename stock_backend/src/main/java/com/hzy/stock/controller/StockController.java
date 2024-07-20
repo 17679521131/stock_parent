@@ -233,5 +233,16 @@ public class StockController {
     }
 
 
+    /**
+     * 获取股票周k线
+     * @param code 股票编码
+     * @return
+     */
+    @GetMapping("/stock/screen/weekkline")
+    public R<List<Stock4EveryWeekDomain>> stockScreenWeekKLine(String code){
+        return stockService.stockScreenWeekKLine(code);
+    }
+
+
 
 }

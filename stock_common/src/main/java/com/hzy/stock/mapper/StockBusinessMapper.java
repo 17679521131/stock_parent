@@ -15,13 +15,13 @@ import java.util.Map;
 */
 public interface StockBusinessMapper {
 
-    int deleteByPrimaryKey(Long id);
+    int deleteByPrimaryKey(String id);
 
     int insert(StockBusiness record);
 
     int insertSelective(StockBusiness record);
 
-    StockBusiness selectByPrimaryKey(Long id);
+    StockBusiness selectByPrimaryKey(String id);
 
     int updateByPrimaryKeySelective(StockBusiness record);
 

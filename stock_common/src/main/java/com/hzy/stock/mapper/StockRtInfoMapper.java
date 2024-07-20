@@ -114,4 +114,6 @@ public interface StockRtInfoMapper {
      * @return
      */
     List<StockNewTransactionDomain> getStockNewTransactionByCode(@Param("code") String code);
+
+    List<Stock4EveryWeekDomain> getStockWeekKLineByCode(@Param("code") String code, @Param("startDate") Date startDate, @Param("endDate") Date endDate);
 }

@@ -91,6 +91,11 @@ public class UserServiceImpl implements UserService {
         if (!result) {
             return R.error(ResponseCode.USERNAME_OR_PASSWORD_ERROR);
         }
+
+
+        //=========================开始用户权限查询=========================================================================
+
+
         //4.响应
         LoginRespVo loginRespvo = new LoginRespVo();
 //        loginRespvo.setUsername(sysUser.getUsername());

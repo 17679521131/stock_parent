@@ -94,7 +94,7 @@ public class StockServiceImpl implements StockService {
         //1.获取股票最新交易时间点
         Date lastDate = DateTimeUtil.getLastDate4Stock(DateTime.now()).toDate();
         //TODO mock数据,后续删除
-        lastDate=DateTime.parse("2021-12-21 14:30:00", DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss")).toDate();
+        lastDate=DateTime.parse("2021-12-21 09:30:01", DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss")).toDate();
         //根据时间获取股票板块数据
         List<StockBlockDomain> data = stockBlockRtInfoMapper.getStockBlockInfoLimit(lastDate);
         //封装返回数据
@@ -114,7 +114,7 @@ public class StockServiceImpl implements StockService {
         //2.获取当前最新的股票交易时间点
         Date newDate = DateTimeUtil.getLastDate4Stock(DateTime.now()).toDate();
         //TODO mock数据,后续删除
-        newDate=DateTime.parse("2022-06-07 15:00:00", DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss")).toDate();
+        newDate=DateTime.parse("2022-05-20 15:00:00", DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss")).toDate();
         //3.调用mapper接口查询
         List<StockUpdownDomain> data = stockRtInfoMapper.getNewDateStockPageInfo(newDate);
         if(CollectionUtils.isEmpty(data)){
@@ -139,7 +139,7 @@ public class StockServiceImpl implements StockService {
         //1.获取股票最新交易时间点
         Date newDate = DateTimeUtil.getLastDate4Stock(DateTime.now()).toDate();
         //TODO mock数据,后续删除
-        newDate=DateTime.parse("2022-06-07 15:00:00", DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss")).toDate();
+        newDate=DateTime.parse("2022-05-20 15:00:00", DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss")).toDate();
         //2.调用mapper接口查询
         List<StockUpdownDomain> data =  stockRtInfoMapper.getStockIncreaseMax(newDate);
         //3.封装响应数据
@@ -450,6 +450,8 @@ public class StockServiceImpl implements StockService {
         DateTime dateTime = DateTimeUtil.getLastDate4Stock(DateTime.now());
         Date endDate = dateTime.toDate();
         //调用mapper接口根据股票编码获取最新分时数据
+        //TODO  mock数据
+        endDate=DateTime.parse("2022-01-05 09:47:00", DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss")).toDate();
         StockNewPriceDomain stockNewPrice =  stockRtInfoMapper.getStockNewPriceByCode(code,endDate);
         //返回数据
         return R.ok(stockNewPrice);
@@ -465,6 +467,33 @@ public class StockServiceImpl implements StockService {
         //直接调用接口将时间降序查询显示前十条数据即可
         List<StockNewTransactionDomain> stockNewTransactions =  stockRtInfoMapper.getStockNewTransactionByCode(code);
         return R.ok(stockNewTransactions);
+    }
+
+    /**
+     * 获取股票周K线数据
+     * @param code 股票编码
+     * @return
+     */
+    @Override
+    public R<List<Stock4EveryWeekDomain>> stockScreenWeekKLine(String code) {
+        //获取当前最新股票有效时间
+        DateTime dateTime = DateTimeUtil.getLastDate4Stock(DateTime.now());
+        Date endDate = dateTime.toDate();
+        //TODO  mock数据
+        endDate=DateTime.parse("2022-01-14 15:00:00", DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss")).toDate();
+        //获取前一周有效时间
+        DateTime startDateTime = dateTime.minusWeeks(20);
+        DateTime openDate = DateTimeUtil.getOpenDate(startDateTime);
+        Date startDate = openDate.toDate();
+        startDate = DateTime.parse("2022-01-05 09:47:00", DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss")).toDate();
+
+        //调用mapper接口获取周K线数据
+        List<Stock4EveryWeekDomain> list =  stockRtInfoMapper.getStockWeekKLineByCode(code,startDate,endDate);
+        //判断非空
+        if(CollectionUtils.isEmpty(list)){
+            list = new ArrayList<>();
+        }
+        return R.ok(list);
     }
 
 

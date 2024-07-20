@@ -57,12 +57,12 @@
             sri.stock_name as  name,
             sri.cur_time as curDate,
             sri.trade_volume as tradeVol,
-            sri.cur_price-sri.pre_close_price as increase,
-            (sri.cur_price-sri.pre_close_price) /pre_close_price as upDown,
+            sri.cur_price-sri.pre_close_price as upDown,
+            (sri.cur_price-sri.pre_close_price) /pre_close_price as increase,
             sri.cur_price as tradePrice
         from stock_rt_info as   sri
         where sri.cur_time=#{newDate}
-        order by upDown desc
+        order by increase desc
         limit 4
     </select>
 
@@ -217,6 +217,24 @@
         from stock_rt_info
         where stock_code=#{code}
         order by cur_time desc limit 10
+    </select>
+    <select id="getStockWeekKLineByCode" resultType="com.hzy.stock.pojo.domain.Stock4EveryWeekDomain">
+        SELECT tmp.avgPrice,tmp.minPrice,s1.cur_price AS openPrice,tmp.maxPrice,s2.cur_price AS closePrice,
+               DATE_FORMAT(tmp.mxTime,'%Y-%m-%d') AS mxTime,tmp.stock_code as stockCode FROM
+            (
+                SELECT
+                    stock_code,
+                    DATE_FORMAT(cur_time,'%Y-%u') AS week,
+                    MAX(cur_time) AS mxTime,
+                    MIN(cur_time) AS miTime,
+                    MAX(cur_price) AS maxPrice,
+                    MIN(cur_price) AS minPrice,
+                    AVG(cur_price) AS avgPrice
+                FROM stock_rt_info
+                WHERE stock_code=#{code} and cur_time between #{startDate} and #{endDate}
+                GROUP BY week
+            ) AS tmp LEFT JOIN stock_rt_info AS s1 ON s1.stock_code=tmp.stock_code AND s1.cur_time=tmp.miTime
+                     LEFT JOIN stock_rt_info AS s2 ON s2.stock_code=tmp.stock_code AND s2.cur_time=tmp.mxTime ORDER BY mxTime ASC
     </select>
 
 

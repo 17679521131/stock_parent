@@ -117,4 +117,11 @@ public interface StockService {
      * @return
      */
     R<List<StockNewTransactionDomain>> getStockNewTransactionInfo(String code);
+
+    /**
+     * 获取股票周k线
+     * @param code 股票编码
+     * @return
+     */
+    R<List<Stock4EveryWeekDomain>> stockScreenWeekKLine(String code);
 }

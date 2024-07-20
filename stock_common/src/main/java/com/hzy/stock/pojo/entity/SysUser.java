@@ -2,6 +2,7 @@ package com.hzy.stock.pojo.entity;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -105,4 +106,6 @@ public class SysUser implements Serializable {
     private Date updateTime;
 
     private static final long serialVersionUID = 1L;
+
+
 }
