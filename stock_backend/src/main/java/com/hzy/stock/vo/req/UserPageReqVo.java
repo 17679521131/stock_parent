@@ -38,10 +38,12 @@ public class UserPageReqVo {
     /**
      * 开始创建日期
      */
+    //@DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     public  String startTime;
     /**
      * 结束创建日期
      */
+    //@DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     public  String endTime;
 
 

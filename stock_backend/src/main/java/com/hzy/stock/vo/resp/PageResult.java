@@ -1,6 +1,8 @@
 package com.hzy.stock.vo.resp;
 
 import com.github.pagehelper.PageInfo;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -11,33 +13,40 @@ import java.util.List;
  * @date 2024/7/15 21:12
  * @description :分页工具类
  */
+@ApiModel(description = "分页实体类")
 @Data
 public class PageResult<T> implements Serializable {
     /**
      * 总记录数
      */
-    private Long totalRows;
+    @ApiModelProperty("总记录数")
+    private Integer totalRows;
 
     /**
      * 总页数
      */
+    @ApiModelProperty("总页数")
     private Integer totalPages;
 
     /**
      * 当前第几页
      */
+    @ApiModelProperty("当前第几页")
     private Integer pageNum;
     /**
      * 每页记录数
      */
+    @ApiModelProperty("每页记录数")
     private Integer pageSize;
     /**
      * 当前页记录数
      */
+    @ApiModelProperty("当前页记录数")
     private Integer size;
     /**
      * 结果集
      */
+    @ApiModelProperty("结果集")
     private List<T> rows;
 
     /**
@@ -51,7 +60,7 @@ public class PageResult<T> implements Serializable {
      *         PageResult<StockUpdownDomain> pageResult = new PageResult<>(new PageInfo<>(data));
      */
     public PageResult(PageInfo<T> pageInfo) {
-        totalRows = pageInfo.getTotal();//获取总记录数
+        totalRows = Long.valueOf(pageInfo.getTotal()).intValue();//获取总记录数
         totalPages = pageInfo.getPages();//获取总页数
         pageNum = pageInfo.getPageNum();//获取当前页
         pageSize = pageInfo.getPageSize();//获取每页记录数

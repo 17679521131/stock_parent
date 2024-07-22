@@ -1,7 +1,7 @@
 server:
   port: 8091
 spring:
-#  # 配置mysql数据源
+  # 配置mysql数据源
 #  datasource:
 #    druid:
 #      username: root

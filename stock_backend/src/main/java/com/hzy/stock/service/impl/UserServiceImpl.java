@@ -194,14 +194,12 @@ public class UserServiceImpl implements UserService {
     @Override
     public R<PageResult> getUserListPage(UserPageReqVo userPageReqVo) {
         //分别线获取前端传来的页码以及每页显示多少条数据
-        Integer pageNum = userPageReqVo.getPageNum();
-        Integer pageSize = userPageReqVo.getPageSize();
-        PageHelper.startPage(pageNum, pageSize);
+        PageHelper.startPage(userPageReqVo.getPageNum(),userPageReqVo.getPageSize());
 
         //根据多条件查询用户信息
-        List<UserPageListInfoDomain> list = sysUserMapper.findUserAllInfoByPage(userPageReqVo.getUsername(),userPageReqVo.getNickName(),userPageReqVo.getStartTime(),userPageReqVo.getEndTime());
+        List<UserPageListInfoDomain> users = sysUserMapper.findUserAllInfoByPage(userPageReqVo.getUsername(),userPageReqVo.getNickName(),userPageReqVo.getStartTime(),userPageReqVo.getEndTime());
         //将返回的结果集封装到PageInfo中
-        PageResult<UserPageListInfoDomain> pageResult = new PageResult<>(new PageInfo<>(list));
+        PageResult<UserPageListInfoDomain> pageResult = new PageResult<>(new PageInfo<>(users));
         return R.ok(pageResult);
     }
 

@@ -46,12 +46,12 @@
     </select>
 
     <!--继承上面这个集合，因为懒得写-->
-    <resultMap id="UserInfoAddCreAndEndTime" type="com.hzy.stock.pojo.domain.UserPageListInfoDomain" extends="BaseResultMap">
+    <resultMap id="UserPageListInfoDomain" type="com.hzy.stock.pojo.domain.UserPageListInfoDomain" extends="BaseResultMap">
         <result property="createUserName" column="createUserName"></result>
         <result property="updateUserName" column="updateUserName"></result>
     </resultMap>
 
-    <select id="findUserAllInfoByPage" resultMap="UserInfoAddCreAndEndTime">
+    <select id="findUserAllInfoByPage" resultMap="UserPageListInfoDomain">
         SELECT
         u1.*,
         u2.username AS createUserName,
