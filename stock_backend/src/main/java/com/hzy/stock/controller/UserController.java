@@ -2,9 +2,11 @@ package com.hzy.stock.controller;
 
 import com.hzy.stock.pojo.entity.SysUser;
 import com.hzy.stock.service.UserService;
-import com.hzy.stock.vo.req.LoginReqVo;
+import com.hzy.stock.vo.req.*;
 import com.hzy.stock.vo.resp.LoginRespVo;
+import com.hzy.stock.vo.resp.PageResult;
 import com.hzy.stock.vo.resp.R;
+import com.hzy.stock.vo.resp.UserInfoRespVo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -12,6 +14,7 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -59,6 +62,64 @@ public class UserController {
     @GetMapping("/captcha")
     public R<Map> getCaptcha(){
         return userService.getCaptcha();
+    }
+
+
+    /**
+     * 多条件综合查询，查询用户所有信息
+     */
+    @PostMapping("/users")
+    public R<PageResult> getUserListPage(@RequestBody UserPageReqVo userPageReqVo){
+        return userService.getUserListPage(userPageReqVo);
+    }
+
+    /**
+     * 添加用户信息
+     */
+    @PostMapping("/user")
+    public R<String> addUser(@RequestBody UserAddVo userAddVo){
+        return userService.addUserInfo(userAddVo);
+    }
+
+    /**
+     * 获取角色拥有的角色信息
+     */
+    @GetMapping("/user/roles/{userId}") //路径传参数
+    public R<Map> getUserRolesInfo(@PathVariable("userId") Long userId){
+        return userService.getUserRolesInfo(userId);
+    }
+
+    /**
+     * 更新用户角色信息
+     */
+    @PutMapping("/user/roles")
+    public R<String> updateUserRolesInfo(@RequestBody UserOneRoleReqVo vo){
+        return userService.updateUserRolesInfo(vo);
+    }
+
+    /**
+     * 批量删除用户信息
+     */
+    @DeleteMapping("/user")
+    public R<String> deleteUserInfo(@RequestBody List<Long> ids){
+        return userService.deleteUserInfo(ids);
+    }
+
+    /**
+     * 根据用户id获取用户信息，完成个人资料展示
+     */
+    @GetMapping("/user/info/{userId}")
+    public R<UserInfoRespVo> getUserInfo(@PathVariable("userId") Long userId){
+        return userService.getUserInfo(userId);
+    }
+
+
+    /**
+     * 根据id更新用户信息
+     */
+    @PutMapping("/user")
+    public R<String> updateUserInfo(@RequestBody UserUpdateInfoVo vo){
+        return userService.updateUserInfo(vo);
     }
 
 

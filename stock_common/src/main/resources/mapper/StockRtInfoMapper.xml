@@ -213,28 +213,40 @@
         where stock_code=#{code} and cur_time=#{endDate}
     </select>
     <select id="getStockNewTransactionByCode" resultType="com.hzy.stock.pojo.domain.StockNewTransactionDomain">
-        select cur_time as curDate,trade_amount as tradeAmt,trade_volume as tradeVol,cur_price as tradePrice
+        select cur_time as date,trade_amount as tradeAmt,trade_volume as tradeVol,cur_price as tradePrice
         from stock_rt_info
         where stock_code=#{code}
         order by cur_time desc limit 10
     </select>
+
     <select id="getStockWeekKLineByCode" resultType="com.hzy.stock.pojo.domain.Stock4EveryWeekDomain">
-        SELECT tmp.avgPrice,tmp.minPrice,s1.cur_price AS openPrice,tmp.maxPrice,s2.cur_price AS closePrice,
-               DATE_FORMAT(tmp.mxTime,'%Y-%m-%d') AS mxTime,tmp.stock_code as stockCode FROM
-            (
-                SELECT
-                    stock_code,
-                    DATE_FORMAT(cur_time,'%Y-%u') AS week,
-                    MAX(cur_time) AS mxTime,
-                    MIN(cur_time) AS miTime,
-                    MAX(cur_price) AS maxPrice,
-                    MIN(cur_price) AS minPrice,
-                    AVG(cur_price) AS avgPrice
-                FROM stock_rt_info
-                WHERE stock_code=#{code} and cur_time between #{startDate} and #{endDate}
-                GROUP BY week
-            ) AS tmp LEFT JOIN stock_rt_info AS s1 ON s1.stock_code=tmp.stock_code AND s1.cur_time=tmp.miTime
-                     LEFT JOIN stock_rt_info AS s2 ON s2.stock_code=tmp.stock_code AND s2.cur_time=tmp.mxTime ORDER BY mxTime ASC
+        SELECT
+            stock_code AS stockCode,
+            MAX( cur_time ) AS mxTime,
+            MIN( cur_time ) AS miTime,
+            MAX( cur_price ) AS maxPrice,
+            MIN( cur_price ) AS minPrice,
+            AVG( cur_price ) AS avgPrice
+        FROM
+            stock_rt_info
+        WHERE
+            stock_code = #{code}
+          AND cur_time BETWEEN #{startDate} AND #{endDate}
+        GROUP BY
+            DATE_FORMAT( cur_time, '%Y-%u')
+        ORDER BY
+            mxTime ASC
+    </select>
+    <select id="getStockInfoByCodeAndTimes" resultType="java.math.BigDecimal">
+        SELECT
+        sri.cur_price
+        FROM stock_rt_info AS sri
+        WHERE sri.stock_code=#{code} AND sri.cur_time in
+        <foreach collection="times" item="timePoint" separator="," open="(" close=")">
+            #{timePoint}
+        </foreach>
+        ORDER BY
+        sri.cur_time ASC
     </select>
 
 

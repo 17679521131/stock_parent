@@ -22,10 +22,16 @@
         from sys_user_role
         where  id = #{id,jdbcType=BIGINT} 
     </select>
+    <select id="findRolesIdByUserId" resultType="java.lang.Long">
+        select role_id from sys_user_role where user_id = #{userId}
+    </select>
 
     <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
         delete from sys_user_role
         where  id = #{id,jdbcType=BIGINT} 
+    </delete>
+    <delete id="deleteByUserId">
+        delete from sys_user_role where user_id = #{userId}
     </delete>
     <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.hzy.stock.pojo.entity.SysUserRole" useGeneratedKeys="true">
         insert into sys_user_role
@@ -48,6 +54,13 @@
                 <if test="roleId != null">#{roleId,jdbcType=BIGINT},</if>
                 <if test="createTime != null">#{createTime,jdbcType=TIMESTAMP},</if>
         </trim>
+    </insert>
+    <insert id="insertUserRoleBatch">
+        insert into sys_user_role (id, user_id, role_id,create_time) values
+                    <foreach collection="list" item="item"  separator=",">
+                        (#{item.id,jdbcType=BIGINT},#{item.userId,jdbcType=BIGINT},#{item.roleId,jdbcType=BIGINT}
+                        ,#{item.createTime,jdbcType=TIMESTAMP})
+                    </foreach>
     </insert>
     <update id="updateByPrimaryKeySelective" parameterType="com.hzy.stock.pojo.entity.SysUserRole">
         update sys_user_role

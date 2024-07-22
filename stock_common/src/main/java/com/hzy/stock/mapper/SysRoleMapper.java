@@ -2,6 +2,8 @@ package com.hzy.stock.mapper;
 
 import com.hzy.stock.pojo.entity.SysRole;
 
+import java.util.List;
+
 /**
 * @author daocaoaren
 * @description 针对表【sys_role(角色表)】的数据库操作Mapper
@@ -21,5 +23,18 @@ public interface SysRoleMapper {
     int updateByPrimaryKeySelective(SysRole record);
 
     int updateByPrimaryKey(SysRole record);
+
+    /**
+     * 查所有存在的角色信息
+     * @return
+     */
+    List<SysRole> findAllInfo();
+
+    /**
+     * 查询所有角色信息
+     * @return
+     */
+    List<SysRole> findAllRoleInfo();
+
 
 }

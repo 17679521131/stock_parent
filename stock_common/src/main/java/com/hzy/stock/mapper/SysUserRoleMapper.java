@@ -1,6 +1,9 @@
 package com.hzy.stock.mapper;
 
 import com.hzy.stock.pojo.entity.SysUserRole;
+import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
 
 /**
 * @author daocaoaren
@@ -22,4 +25,23 @@ public interface SysUserRoleMapper {
 
     int updateByPrimaryKey(SysUserRole record);
 
+    /**
+     * 根据用户的id查询他的所有角色id
+     * @param userId
+     * @return
+     */
+    List<Long> findRolesIdByUserId(@Param("userId") Long userId);
+
+    /**
+     * 根据用户的id删除用户对应的角色信息
+     * @param userId
+     */
+    int deleteByUserId(@Param("userId") Long userId);
+
+    /**
+     * 批量插入用户角色信息
+     * @param list
+     * @return
+     */
+    int insertUserRoleBatch(@Param("list") List<SysUserRole> list);
 }

@@ -22,10 +22,19 @@
         from sys_role_permission
         where  id = #{id,jdbcType=BIGINT} 
     </select>
+    <select id="getPermissionIdByRoleId" resultType="java.lang.String">
+        select rp.permission_id from sys_role_permission as rp where rp.role_id =#{roleId}
+    </select>
 
     <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
         delete from sys_role_permission
         where  id = #{id,jdbcType=BIGINT} 
+    </delete>
+    <delete id="deleteByRoleId">
+        delete from sys_role_permission where role_id = #{id}
+    </delete>
+    <delete id="deleteByPermissionId">
+        delete from sys_role_permission where permission_id = #{permissionId}
     </delete>
     <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.hzy.stock.pojo.entity.SysRolePermission" useGeneratedKeys="true">
         insert into sys_role_permission
@@ -48,6 +57,12 @@
                 <if test="permissionId != null">#{permissionId,jdbcType=BIGINT},</if>
                 <if test="createTime != null">#{createTime,jdbcType=TIMESTAMP},</if>
         </trim>
+    </insert>
+    <insert id="addRolePermissionInfo">
+        insert into sys_role_permission ( id,role_id,permission_id,create_time)
+        values <foreach collection="list" item="item"  separator=",">
+        (#{item.id},#{item.roleId},#{item.permissionId},#{item.createTime})
+    </foreach>
     </insert>
     <update id="updateByPrimaryKeySelective" parameterType="com.hzy.stock.pojo.entity.SysRolePermission">
         update sys_role_permission

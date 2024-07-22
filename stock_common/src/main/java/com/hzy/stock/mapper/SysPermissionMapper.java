@@ -1,6 +1,9 @@
 package com.hzy.stock.mapper;
 
 import com.hzy.stock.pojo.entity.SysPermission;
+import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
 
 /**
 * @author daocaoaren
@@ -21,5 +24,25 @@ public interface SysPermissionMapper {
     int updateByPrimaryKeySelective(SysPermission record);
 
     int updateByPrimaryKey(SysPermission record);
+
+    /**
+     * 根据用户id查询用户的所有权限
+     * @param id
+     * @return
+     */
+    List<SysPermission> findPermissionsByUserId(@Param("id") Long id);
+
+    /**
+     * 查询所有的权限集合
+     * @return
+     */
+    List<SysPermission> findAll();
+
+    /**
+     * 根据权限父类id查询对应子集权限
+     * @param permissionId
+     * @return
+     */
+    int findChildrenCountByParentId(@Param("permissionId") Long permissionId);
 
 }

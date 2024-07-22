@@ -26,6 +26,14 @@
         from sys_role
         where  id = #{id,jdbcType=BIGINT} 
     </select>
+    <select id="findAllInfo" resultType="com.hzy.stock.pojo.entity.SysRole">
+        select <include refid="Base_Column_List" /> from sys_role where  deleted =1
+    </select>
+    <select id="findAllRoleInfo" resultType="com.hzy.stock.pojo.entity.SysRole">
+        select
+        <include refid="Base_Column_List" />
+        from sys_role
+    </select>
 
     <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
         delete from sys_role

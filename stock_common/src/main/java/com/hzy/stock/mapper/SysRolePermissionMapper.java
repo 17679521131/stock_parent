@@ -1,6 +1,10 @@
 package com.hzy.stock.mapper;
 
 import com.hzy.stock.pojo.entity.SysRolePermission;
+import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
+import java.util.Set;
 
 /**
 * @author daocaoaren
@@ -22,4 +26,25 @@ public interface SysRolePermissionMapper {
 
     int updateByPrimaryKey(SysRolePermission record);
 
+    /**
+     * 批量添加角色权限中间表数据
+     * @param list
+     * @return
+     */
+    int addRolePermissionInfo(@Param("list") List<SysRolePermission> list);
+
+    /**
+     * 根据角色id获取权限id
+     * @param roleId
+     * @return
+     */
+    Set<String> getPermissionIdByRoleId(@Param("roleId") String roleId);
+
+    int deleteByRoleId(@Param("id") Long id);
+
+    /**
+     * 根据权限id删除角色权限表
+     * @param permissionId
+     */
+    void deleteByPermissionId(@Param("permissionId") Long permissionId);
 }

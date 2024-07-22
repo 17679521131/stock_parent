@@ -20,7 +20,6 @@
             <result property="createWhere" column="create_where" jdbcType="TINYINT"/>
             <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
             <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
-
     </resultMap>
 
 
@@ -44,6 +43,38 @@
             <include refid="Base_Column_List" />
             from sys_user
         where  username = #{userName,jdbcType=VARCHAR}
+    </select>
+
+    <!--继承上面这个集合，因为懒得写-->
+    <resultMap id="UserInfoAddCreAndEndTime" type="com.hzy.stock.pojo.domain.UserPageListInfoDomain" extends="BaseResultMap">
+        <result property="createUserName" column="createUserName"></result>
+        <result property="updateUserName" column="updateUserName"></result>
+    </resultMap>
+
+    <select id="findUserAllInfoByPage" resultMap="UserInfoAddCreAndEndTime">
+        SELECT
+        u1.*,
+        u2.username AS createUserName,
+        u3.username AS updateUserName
+        FROM
+        sys_user AS u1
+        LEFT JOIN sys_user AS u2 ON u1.create_id = u2.id
+        LEFT JOIN sys_user AS u3 ON u1.update_id = u3.id
+        <where>
+            AND u1.deleted=1
+            <if test="userName!=null and userName.trim!=''">
+                AND u1.username like concat('%',#{userName},'%')
+            </if>
+            <if test="nickName!=null and nickName.trim!=''">
+                AND u1.nick_name like concat('%',#{nickName},'%')
+            </if>
+            <if test="startTime!=null and startTime.trim!=''">
+                AND u1.create_time >=#{startTime}
+            </if>
+            <if test="endTime!=null and endTime.trim!=''">
+                AND u1.create_time &lt;=#{endTime}
+            </if>
+        </where>
     </select>
 
 
@@ -153,21 +184,57 @@
     </update>
     <update id="updateByPrimaryKey" parameterType="com.hzy.stock.pojo.entity.SysUser">
         update sys_user
-        set 
-            username =  #{username,jdbcType=VARCHAR},
-            password =  #{password,jdbcType=VARCHAR},
-            phone =  #{phone,jdbcType=VARCHAR},
-            real_name =  #{realName,jdbcType=VARCHAR},
-            nick_name =  #{nickName,jdbcType=VARCHAR},
-            email =  #{email,jdbcType=VARCHAR},
-            status =  #{status,jdbcType=TINYINT},
-            sex =  #{sex,jdbcType=TINYINT},
-            deleted =  #{deleted,jdbcType=TINYINT},
-            create_id =  #{createId,jdbcType=BIGINT},
-            update_id =  #{updateId,jdbcType=BIGINT},
-            create_where =  #{createWhere,jdbcType=TINYINT},
-            create_time =  #{createTime,jdbcType=TIMESTAMP},
-            update_time =  #{updateTime,jdbcType=TIMESTAMP}
+        <set>
+            <if test="username != null">
+                username = #{username,jdbcType=VARCHAR},
+            </if>
+            <if test="password != null">
+                password = #{password,jdbcType=VARCHAR},
+            </if>
+            <if test="phone != null">
+                phone = #{phone,jdbcType=VARCHAR},
+            </if>
+            <if test="realName != null">
+                real_name = #{realName,jdbcType=VARCHAR},
+            </if>
+            <if test="nickName != null">
+                nick_name = #{nickName,jdbcType=VARCHAR},
+            </if>
+            <if test="email != null">
+                email = #{email,jdbcType=VARCHAR},
+            </if>
+            <if test="status != null">
+                status = #{status,jdbcType=TINYINT},
+            </if>
+            <if test="sex != null">
+                sex = #{sex,jdbcType=TINYINT},
+            </if>
+            <if test="deleted != null">
+                deleted = #{deleted,jdbcType=TINYINT},
+            </if>
+            <if test="createId != null">
+                create_id = #{createId,jdbcType=VARCHAR},
+            </if>
+            <if test="updateId != null">
+                update_id = #{updateId,jdbcType=VARCHAR},
+            </if>
+            <if test="createWhere != null">
+                create_where = #{createWhere,jdbcType=TINYINT},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime,jdbcType=TIMESTAMP},
+            </if>
+        </set>
         where   id = #{id,jdbcType=BIGINT} 
+    </update>
+
+    <update id="updateStatusForDelete">
+        update sys_user set deleted =0,update_time=now() where id in
+        <foreach collection="ids" item="userId" separator="," open="(" close=")">
+            #{userId}
+        </foreach>
     </update>
 </mapper>

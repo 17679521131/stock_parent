@@ -1,6 +1,7 @@
 package com.hzy.stock.server.impl;
 
 import com.google.common.collect.Lists;
+import com.hzy.stock.face.StockCacheFace;
 import com.hzy.stock.mapper.*;
 import com.hzy.stock.pojo.entity.StockBlockRtInfo;
 import com.hzy.stock.pojo.entity.StockMarketIndexInfo;
@@ -74,6 +75,9 @@ public class StockTimerTaskServiceImpl implements StockTimerTaskService {
 
     @Autowired
     private StockOuterMarketIndexInfoMapper stockOuterMarketIndexInfoMapper;
+
+    @Autowired
+    private StockCacheFace stockCacheFace;
 
 
 
@@ -188,9 +192,10 @@ public class StockTimerTaskServiceImpl implements StockTimerTaskService {
     @Override
     public void getStockRtIndex() {
         //获取所有的个股集合  3000+ 由于数据量太多，直接拼接会导致url过长，使对方服务器拒绝访问
-        List<String> allStockCode = stockBusinessMapper.getAllStockCode();
-        //将个股添加大盘业务前缀 sh，sz
-        allStockCode = allStockCode.stream().map(code->code.startsWith("6")?"sh"+code:"sz"+code).collect(Collectors.toList());
+//        List<String> allStockCode = stockBusinessMapper.getAllStockCode();
+//        //将个股添加大盘业务前缀 sh，sz
+//        allStockCode = allStockCode.stream().map(code->code.startsWith("6")?"sh"+code:"sz"+code).collect(Collectors.toList());
+        List<String> allStockCode = stockCacheFace.getAllStockCodeWithPrefix();
         long startTime = System.currentTimeMillis();
         //将所有个股编码拆分成若干个小集合
         Lists.partition(allStockCode, 15).forEach(codes->{

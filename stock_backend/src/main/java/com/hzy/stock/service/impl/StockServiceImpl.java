@@ -24,6 +24,7 @@ import org.springframework.util.CollectionUtils;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.net.URLEncoder;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -471,29 +472,82 @@ public class StockServiceImpl implements StockService {
 
     /**
      * 获取股票周K线数据
-     * @param code 股票编码
+     * @param stockCode 股票编码
      * @return
      */
     @Override
-    public R<List<Stock4EveryWeekDomain>> stockScreenWeekKLine(String code) {
-        //获取当前最新股票有效时间
-        DateTime dateTime = DateTimeUtil.getLastDate4Stock(DateTime.now());
-        Date endDate = dateTime.toDate();
-        //TODO  mock数据
-        endDate=DateTime.parse("2022-01-14 15:00:00", DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss")).toDate();
-        //获取前一周有效时间
-        DateTime startDateTime = dateTime.minusWeeks(20);
-        DateTime openDate = DateTimeUtil.getOpenDate(startDateTime);
-        Date startDate = openDate.toDate();
-        startDate = DateTime.parse("2022-01-05 09:47:00", DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss")).toDate();
+    public R<List<Stock4EveryWeekDomain>> stockScreenWeekKLine(String stockCode) {
 
-        //调用mapper接口获取周K线数据
-        List<Stock4EveryWeekDomain> list =  stockRtInfoMapper.getStockWeekKLineByCode(code,startDate,endDate);
-        //判断非空
-        if(CollectionUtils.isEmpty(list)){
-            list = new ArrayList<>();
+        //指定默认日期范围下的数据
+        DateTime curDateTime = DateTime.now();
+        //截止时间
+        Date endTime = curDateTime.toDate();
+        endTime=DateTime.parse("2022-05-22 09:30:00",DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss")).toDate();
+        //开始时间
+        Date startTime = curDateTime.minusWeeks(10).toDate();
+        startTime=DateTime.parse("2021-01-01 09:30:00",DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss")).toDate();
+        //根据指定日期范围查询周K线数据
+//        List<Stock4EvrWeekDomain> infos=stockRtInfoMapper.getWeekLineData(stockCode,startTime,endTime);
+        List<Stock4EveryWeekDomain> infos=stockRtInfoMapper.getStockWeekKLineByCode(stockCode,startTime,endTime);
+        //获取每周的开盘时间点和收盘时间点的集合
+        //每周开盘时间点
+        List<Date> everyOpenTime = infos.stream().map(info -> info.getMiTime()).collect(Collectors.toList());
+        //每周收盘盘时间点 最大开盘时间点对应的股票信息就包含了开盘价和收盘价信息
+        List<Date> everyCloseTime = infos.stream().map(info -> info.getMxTime()).collect(Collectors.toList());
+//        Map<String,List<Date>> map=new HashMap<>();
+//        map.put("closes",new ArrayList<>());
+//        map.put("opens",new ArrayList<>());
+//        infos.stream().forEach(info -> {
+//            map.get("opens").add(info.getMiTime());
+//            map.get("closes").add(info.getMxTime());
+//        });
+//        //分别查询指定股票在指定时间点下的数据集合
+        List<BigDecimal> openPrices=stockRtInfoMapper.getStockInfoByCodeAndTimes(stockCode,everyOpenTime);
+        List<BigDecimal> closePrices=stockRtInfoMapper.getStockInfoByCodeAndTimes(stockCode,everyCloseTime);
+        //将获取的开盘价格和收盘价格合并到基础查询结果中
+        for (int i = 0; i < infos.size(); i++) {
+            infos.get(i).setOpenPrice(openPrices.get(i));
+            infos.get(i).setClosePrice(closePrices.get(i));
         }
-        return R.ok(list);
+        return R.ok(infos);
+//        //获取当前最新股票有效时间
+//        DateTime dateTime = DateTimeUtil.getLastDate4Stock(DateTime.now());
+//        Date endDate = dateTime.toDate();
+//        //TODO  mock数据
+//        endDate=DateTime.parse("2022-05-22 09:30:00", DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss")).toDate();
+//        //获取前一周有效时间
+//        Date startDate = dateTime.minusWeeks(10).toDate();
+//        startDate = DateTime.parse("2022-1-19 09:47:00", DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss")).toDate();
+//
+//        //调用mapper接口获取周K线数据
+//        List<Stock4EveryWeekDomain> list =  stockRtInfoMapper.getStockWeekKLineByCode(code,startDate,endDate);
+//        //获取每周的开盘时间点和收盘时间点的集合
+//        //每周开盘时间点
+////        List<Date> everyOpenTime = list.stream().map(info -> info.getMiTime()).collect(Collectors.toList());
+////        //每周收盘盘时间点 最大开盘时间点对应的股票信息就包含了开盘价和收盘价信息
+////        List<Date> everyCloseTime = list.stream().map(info -> info.getMxTime()).collect(Collectors.toList());
+//////        Map<String,List<Date>> map=new HashMap<>();
+//////        map.put("closes",new ArrayList<>());
+//////        map.put("opens",new ArrayList<>());
+//////        infos.stream().forEach(info -> {
+//////            map.get("opens").add(info.getMiTime());
+//////            map.get("closes").add(info.getMxTime());
+//////        });
+//////        //分别查询指定股票在指定时间点下的数据集合
+////        List<BigDecimal> openPrices=stockRtInfoMapper.getStockInfoByCodeAndTimes(code,everyOpenTime);
+////        List<BigDecimal> closePrices=stockRtInfoMapper.getStockInfoByCodeAndTimes(code,everyCloseTime);
+////        //将获取的开盘价格和收盘价格合并到基础查询结果中
+////        for (int i = 0; i < list.size(); i++) {
+////            list.get(i).setOpenPrice(openPrices.get(i));
+////            list.get(i).setClosePrice(closePrices.get(i));
+////        }
+//        //判断非空
+//        if(CollectionUtils.isEmpty(list)){
+//            list = new ArrayList<>();
+//        }
+//        return R.ok(list);
+
+
     }
 
 

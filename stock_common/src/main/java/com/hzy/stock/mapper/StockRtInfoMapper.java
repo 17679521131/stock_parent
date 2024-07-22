@@ -4,6 +4,7 @@ import com.hzy.stock.pojo.domain.*;
 import com.hzy.stock.pojo.entity.StockRtInfo;
 import org.apache.ibatis.annotations.Param;
 
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -115,5 +116,24 @@ public interface StockRtInfoMapper {
      */
     List<StockNewTransactionDomain> getStockNewTransactionByCode(@Param("code") String code);
 
+    /**
+     * 查询股票每周的基础数据，包含每周的开盘时间点和收盘时间点
+     * 但是不包含开盘价格和收盘价格
+     * @param code 股票编码
+     * @param startDate 开始时间
+     * @param endDate 结束时间
+     * @return
+     */
     List<Stock4EveryWeekDomain> getStockWeekKLineByCode(@Param("code") String code, @Param("startDate") Date startDate, @Param("endDate") Date endDate);
+
+    /**
+     * 查询指定股票在指定时间下的数据
+     * @param code
+     * @param times
+     * @return
+     *  map接口：
+     *      openPrice:xxx
+     *      closePrice:xxx
+     */
+    List<BigDecimal> getStockInfoByCodeAndTimes(@Param("code") String code, @Param("times") List<Date> times);
 }

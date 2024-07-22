@@ -36,6 +36,19 @@
         from sys_permission
         where  id = #{id,jdbcType=BIGINT} 
     </select>
+    <select id="findPermissionsByUserId" resultType="com.hzy.stock.pojo.entity.SysPermission">
+        select p.*
+        from sys_permission as p,sys_role_permission as rp,sys_user_role as ur
+        where p.id=rp.permission_id and rp.role_id = ur.role_id and ur.user_id=#{id}
+    </select>
+    <select id="findAll" resultType="com.hzy.stock.pojo.entity.SysPermission">
+        select
+        <include refid="Base_Column_List" />
+        from sys_permission where deleted=1
+    </select>
+    <select id="findChildrenCountByParentId" resultType="java.lang.Integer">
+        SELECT COUNT(*) FROM sys_permission WHERE pid=#{permissionId} AND deleted=1
+    </select>
 
     <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
         delete from sys_permission

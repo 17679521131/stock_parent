@@ -21,6 +21,8 @@ spring:
     active: cache,stock,mq,sharding # 激活其他配置文件，如果有多个文件可以用逗号隔开
   main:
     allow-bean-definition-overriding: true # 允许容器中bean覆盖
+  jackson:
+    time-zone: GMT+8 # 为了方式spring序列化时间和反序列化时间不同出现出现相差八小时的情况
 
 #mybatis配置
 mybatis:
@@ -31,8 +33,8 @@ mybatis:
   configuration:
     map-underscore-to-camel-case: true # 开启驼峰映射sys_user===》SysUser
 #    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl #通过mybatis执行的sql语句以日志的形式输出到终端
-#    chache-enabled: false # 禁止二级缓存cffiencache
-#    local-cache-scope: statement # 一级缓存默认开启
+    chache-enabled: false # 禁止二级缓存cffiencache
+    local-cache-scope: statement # 一级缓存默认开启
 
 # 配置分页插件
 pagehelper:
