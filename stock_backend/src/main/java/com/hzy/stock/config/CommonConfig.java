@@ -26,10 +26,10 @@ public class CommonConfig {
      * 定义一个密码加密、匹配器bean，匹配账号密码是否一对
      * @return
      */
-    @Bean
-    public PasswordEncoder passwordEncoder(){
-        return new BCryptPasswordEncoder();
-    }
+//    @Bean
+//    public PasswordEncoder passwordEncoder(){
+//        return new BCryptPasswordEncoder();
+//    }
 
     /**
      * 基于雪花算法生成id

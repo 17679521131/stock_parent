@@ -48,11 +48,11 @@ public class UserController {
      * @param loginReqVo
      * @return
      */
-    @ApiOperation(value = "用户登录功能")
-    @PostMapping("/login")
-    public R<LoginRespVo> login(@RequestBody LoginReqVo loginReqVo){
-        return userService.login(loginReqVo);
-    }
+//    @ApiOperation(value = "用户登录功能")
+//    @PostMapping("/login")
+//    public R<LoginRespVo> login(@RequestBody LoginReqVo loginReqVo){
+//        return userService.login(loginReqVo);
+//    }
 
     /**
      * 生成图片验证码功能

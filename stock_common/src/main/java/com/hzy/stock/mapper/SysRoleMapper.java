@@ -1,6 +1,7 @@
 package com.hzy.stock.mapper;
 
 import com.hzy.stock.pojo.entity.SysRole;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -36,5 +37,12 @@ public interface SysRoleMapper {
      */
     List<SysRole> findAllRoleInfo();
 
+
+    /**
+     * 根据角色ID查询所有角色信息
+     * @param id
+     * @return
+     */
+    List<SysRole> getRoleByUserId(@Param("id") Long id);
 
 }

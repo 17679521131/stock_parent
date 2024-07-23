@@ -34,6 +34,16 @@
         <include refid="Base_Column_List" />
         from sys_role
     </select>
+    <select id="getRoleByUserId" resultType="com.hzy.stock.pojo.entity.SysRole">
+        SELECT
+            r.*
+        FROM
+            sys_user_role AS ur,
+            sys_role AS r
+        WHERE
+            ur.role_id = r.id
+          AND ur.user_id = #{id}
+    </select>
 
     <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
         delete from sys_role
