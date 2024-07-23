@@ -28,10 +28,33 @@
         from sys_log
         where  id = #{id,jdbcType=BIGINT} 
     </select>
+    <select id="findByCondition" resultType="com.hzy.stock.pojo.entity.SysLog">
+        select <include refid="Base_Column_List"/> from  sys_log
+        <where>
+            <if test="username!=null and username.trim!=''">
+                and username like concat('%',#{username},'%')
+            </if>
+            <if test="operation!=null and operation.trim!=''">
+                and operation=#{operation}
+            </if>
+            <if  test="startTime!=null and startTime.trim!=''">
+                and create_time >=#{startTime}
+            </if>
+            <if  test="endTime!=null and endTime.trim!=''">
+                and create_time &lt;=#{endTime}
+            </if>
+        </where>
+    </select>
 
     <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
         delete from sys_log
         where  id = #{id,jdbcType=BIGINT} 
+    </delete>
+    <delete id="deleteBatchByLogIds">
+        delete from sys_log where id in
+        <foreach collection="logIds" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
     </delete>
     <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.hzy.stock.pojo.entity.SysLog" useGeneratedKeys="true">
         insert into sys_log

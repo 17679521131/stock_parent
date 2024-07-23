@@ -2,13 +2,20 @@ package com.hzy.stock.pojo.entity;
 
 import java.io.Serializable;
 import java.util.Date;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * 系统日志
  * @TableName sys_log
  */
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 public class SysLog implements Serializable {
     /**
      * 主键
@@ -18,7 +25,7 @@ public class SysLog implements Serializable {
     /**
      * 用户id
      */
-    private String userId;
+    private Long userId;
 
     /**
      * 用户名

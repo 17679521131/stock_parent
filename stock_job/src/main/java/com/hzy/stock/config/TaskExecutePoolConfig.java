@@ -2,6 +2,7 @@ package com.hzy.stock.config;
 
 import com.hzy.stock.pojo.vo.TaskThreadPoolInfo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
@@ -14,6 +15,7 @@ import java.util.concurrent.ThreadPoolExecutor;
  * @description : 定义线程池的配置类
  */
 @Configuration
+@EnableConfigurationProperties({TaskThreadPoolInfo.class})
 public class TaskExecutePoolConfig {
 
     /**

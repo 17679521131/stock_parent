@@ -18,3 +18,11 @@ stock:
     - "3~5%"
     - "5~7%"
     - ">7%"
+
+#线程池基本参数
+task:
+  pool:
+    corePoolSize: 5 # 核心线程数
+    maxPoolSize: 20 # 设置最大线程数
+    keepAliveSeconds: 300 # 设置线程活跃时间，单位秒
+    queueCapacity: 100 # 设置队列容量
