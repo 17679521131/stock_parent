@@ -2,6 +2,7 @@ package com.hzy.stock.log.interceptor;
 
 import com.google.gson.Gson;
 
+import com.hzy.stock.Context.BaseContext;
 import com.hzy.stock.constant.StockConstant;
 import com.hzy.stock.log.annotation.StockLog;
 import com.hzy.stock.log.utils.RequestInfoUtil;
@@ -52,7 +53,8 @@ public class LogInterceptor implements HandlerInterceptor {
                  String userName=null;
                  Long userId=null;
                  if (StringUtils.isBlank(userInfo) || !userInfo.contains(":")) {
-                     userName="匿名用户";
+                     String username1 = BaseContext.getCurrentId();
+                     userName=username1;
                  }else {
                      //TODO 后续jwt解析获取用户信息
                      String[] infos = userInfo.split(":");

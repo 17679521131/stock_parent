@@ -1,5 +1,6 @@
 package com.hzy.stock.controller;
 
+import com.hzy.stock.log.annotation.StockLog;
 import com.hzy.stock.service.RoleService;
 import com.hzy.stock.vo.req.RoleAddVo;
 import com.hzy.stock.vo.req.RolePageVo;
@@ -40,6 +41,7 @@ public class RoleController {
      * @param roleAddVo
      * @return
      */
+    @StockLog("添加角色和角色关联权限")
     @PostMapping("/role")
     public R<String> addRoleAndPermission(@RequestBody RoleAddVo roleAddVo){
         return roleService.addRoleAndPermission(roleAddVo);
@@ -61,6 +63,7 @@ public class RoleController {
      * @param vo
      * @return
      */
+    @StockLog("添加角色和角色关联权限,编辑角色信息提交的数据")
     @PutMapping("/role")
     public R<String> updateRoleAndPermission(@RequestBody RoleUpdateVo vo){
         return roleService.updateRoleAndPermission(vo);
@@ -71,6 +74,7 @@ public class RoleController {
      * @param roleId
      * @return
      */
+    @StockLog("删除角色")
     @DeleteMapping("/role/{roleId}")
     public R<String> deleteRole(@PathVariable("roleId") Long roleId){
         return roleService.deleteRoleById(roleId);
@@ -83,6 +87,7 @@ public class RoleController {
      * @param status 状态 1.正常 0：禁用
      * @return
      */
+    @StockLog("更新用户的状态信息")
     @PostMapping("/role/{roleId}/{status}")
     public R<String> updateRoleStatus(@PathVariable("roleId") Long roleId, @PathVariable("status") Integer status){
         return roleService.updateRoleStatus(roleId, status);

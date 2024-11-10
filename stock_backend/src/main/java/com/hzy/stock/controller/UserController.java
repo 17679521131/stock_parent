@@ -1,5 +1,6 @@
 package com.hzy.stock.controller;
 
+import com.hzy.stock.log.annotation.StockLog;
 import com.hzy.stock.pojo.entity.SysUser;
 import com.hzy.stock.service.UserService;
 import com.hzy.stock.vo.req.*;
@@ -76,6 +77,7 @@ public class UserController {
     /**
      * 添加用户信息
      */
+    @StockLog("添加用户信息")
     @PostMapping("/user")
     public R<String> addUser(@RequestBody UserAddVo userAddVo){
         return userService.addUserInfo(userAddVo);
@@ -92,6 +94,7 @@ public class UserController {
     /**
      * 更新用户角色信息
      */
+    @StockLog("更新用户角色信息")
     @PutMapping("/user/roles")
     public R<String> updateUserRolesInfo(@RequestBody UserOneRoleReqVo vo){
         return userService.updateUserRolesInfo(vo);
@@ -100,6 +103,7 @@ public class UserController {
     /**
      * 批量删除用户信息
      */
+    @StockLog("批量删除用户信息")
     @DeleteMapping("/user")
     public R<String> deleteUserInfo(@RequestBody List<Long> ids){
         return userService.deleteUserInfo(ids);
@@ -117,6 +121,7 @@ public class UserController {
     /**
      * 根据id更新用户信息
      */
+    @StockLog("根据id更新用户信息")
     @PutMapping("/user")
     public R<String> updateUserInfo(@RequestBody UserUpdateInfoVo vo){
         return userService.updateUserInfo(vo);
@@ -128,6 +133,7 @@ public class UserController {
      * @param vo
      * @return
      */
+    @StockLog("用户更新密码")
     @PutMapping("/user/password")
     public R<String> updateUserPassword(@RequestBody UserPwdVo vo){
         return userService.updateUserPassword(vo);
@@ -138,6 +144,7 @@ public class UserController {
      * @param userId
      * @return
      */
+    @StockLog("重制用户密码")
     @GetMapping("/user/password/{userId}")
     public R<String> resetUserPassword(@PathVariable("userId") Long userId){
         return userService.resetUserPassword(userId);

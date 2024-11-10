@@ -44,6 +44,7 @@
                 and create_time &lt;=#{endTime}
             </if>
         </where>
+        order by create_time desc
     </select>
 
     <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">

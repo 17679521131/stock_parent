@@ -98,7 +98,7 @@ public class PermissionServiceImpl implements PermissionService {
         //获取所有的权限集合
         List<SysPermission> permissions =  sysPermissionMapper.findAll();
         //根据获取的所有权限集合，便利获取树状菜单
-        List<LoginRespPermission> list = getTree(permissions,0l,true);
+        List<LoginRespPermission> list = getTree(permissions,0l,false);
         return R.ok(list);
     }
 

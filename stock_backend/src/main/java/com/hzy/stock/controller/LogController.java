@@ -1,5 +1,6 @@
 package com.hzy.stock.controller;
 
+import com.hzy.stock.log.annotation.StockLog;
 import com.hzy.stock.service.LogService;
 import com.hzy.stock.vo.req.LogPageReqVo;
 import com.hzy.stock.vo.resp.PageResult;
@@ -45,7 +46,7 @@ public class LogController {
             @ApiImplicitParam(paramType = "body", dataType = "List<Long>", name = "logIds", value = "", required = true)
     })
     @ApiOperation(value = "批量删除日志信息功能", notes = "批量删除日志信息功能", httpMethod = "DELETE")
-//    @StockLog("日志删除")
+    @StockLog("日志删除")
     @DeleteMapping("/log")
     @PreAuthorize("hasAuthority('sys:log:delete')")//权限表示与数据库定义的标识一致
     public R<String> deleteBatch(@RequestBody List<Long> logIds){

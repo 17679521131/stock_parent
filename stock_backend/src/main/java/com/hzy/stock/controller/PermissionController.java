@@ -1,5 +1,6 @@
 package com.hzy.stock.controller;
 
+import com.hzy.stock.log.annotation.StockLog;
 import com.hzy.stock.pojo.entity.SysPermission;
 import com.hzy.stock.service.PermissionService;
 import com.hzy.stock.vo.req.PermissionAddVo;
@@ -58,6 +59,7 @@ public class PermissionController {
      * @param vo
      * @return
      */
+    @StockLog("权限添加按钮")
     @PostMapping("/permission")
     public R<String> addPermission(@RequestBody PermissionAddVo vo){
         return permissionService.addPermission(vo);
@@ -69,6 +71,7 @@ public class PermissionController {
      * @param vo
      * @return
      */
+    @StockLog("更新修改权限按钮")
     @PutMapping("/permission")
     public R<String> updatePermission(@RequestBody PermissionUpdateVo vo){
         return permissionService.updatePermission(vo);
@@ -80,6 +83,7 @@ public class PermissionController {
      * @param permissionId
      * @return
      */
+    @StockLog("删除权限按钮菜单")
     @DeleteMapping("/permission/{permissionId}")
     public R<String> deletePermission(@PathVariable("permissionId") Long permissionId){
         return permissionService.deletePermission(permissionId);

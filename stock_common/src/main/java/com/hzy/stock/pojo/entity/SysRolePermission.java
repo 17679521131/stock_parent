@@ -2,6 +2,8 @@ package com.hzy.stock.pojo.entity;
 
 import java.io.Serializable;
 import java.util.Date;
+
+import lombok.Builder;
 import lombok.Data;
 
 /**
