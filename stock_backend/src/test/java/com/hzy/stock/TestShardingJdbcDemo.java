@@ -68,7 +68,7 @@ public class TestShardingJdbcDemo {
     public void testCommon4Db(){
         Date curDate= DateTime.parse("2022-01-03 09:30:00", DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss")).toDate();
         List<StockBlockDomain> info = stockBlockRtInfoMapper.getStockBlockInfoLimit(curDate);
-        //System.out.println(info);
+        System.out.println(info);
     }
 
     @Autowired
@@ -79,8 +79,8 @@ public class TestShardingJdbcDemo {
      */
     @Test
     public void testStockRtInfo(){
-        Date start= DateTime.parse("2022-07-13 09:30:00", DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss")).toDate();
-        Date end= DateTime.parse("2022-07-13 15:00:00", DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss")).toDate();
+        Date start= DateTime.parse("2025-07-12 09:30:00", DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss")).toDate();
+        Date end= DateTime.parse("2025-07-13 15:00:00", DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss")).toDate();
         List<Map> info = stockRtInfoMapper.getStockUpDownCount(start,end,0);
         System.out.println(info);
     }
