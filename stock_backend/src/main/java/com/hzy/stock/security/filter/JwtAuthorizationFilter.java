@@ -1,6 +1,7 @@
 package com.hzy.stock.security.filter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.hzy.stock.Context.BaseContext;
 import com.hzy.stock.security.utils.JwtTokenUtil;
 import com.hzy.stock.vo.resp.R;
 import com.hzy.stock.vo.resp.ResponseCode;
@@ -61,6 +62,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
         }
         //2.3 从票据字符串中获取用户名和权限信息，并组装UsernamePasswordAuxxxToken对象
         String username = JwtTokenUtil.getUsername(tokenStr);
+        BaseContext.setCurrentId(username);
         //["P5","ROLE_ADMIN"]
         String roles = JwtTokenUtil.getUserRole(tokenStr);
         String stripStr = StringUtils.strip(roles, "[]");
