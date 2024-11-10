@@ -82,4 +82,18 @@ public interface UserService {
      * 跟新用户信息
      */
     R<String> updateUserInfo(UserUpdateInfoVo vo);
+
+    /**
+     * 修改用户密码
+     * @param vo
+     * @return
+     */
+    R<String> updateUserPassword(UserPwdVo vo);
+
+    /**
+     * 重置用户密码
+     * @param userId
+     * @return
+     */
+    R<String> resetUserPassword(Long userId);
 }

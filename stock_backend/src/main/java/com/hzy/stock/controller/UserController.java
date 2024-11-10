@@ -123,4 +123,25 @@ public class UserController {
     }
 
 
+    /**
+     * 用户更新密码
+     * @param vo
+     * @return
+     */
+    @PutMapping("/user/password")
+    public R<String> updateUserPassword(@RequestBody UserPwdVo vo){
+        return userService.updateUserPassword(vo);
+    }
+
+    /**
+     * 重制用户密码
+     * @param userId
+     * @return
+     */
+    @GetMapping("/user/password/{userId}")
+    public R<String> resetUserPassword(@PathVariable("userId") Long userId){
+        return userService.resetUserPassword(userId);
+    }
+
+
 }

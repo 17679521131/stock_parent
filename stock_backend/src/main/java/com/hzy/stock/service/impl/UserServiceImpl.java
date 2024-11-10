@@ -6,6 +6,7 @@ import cn.hutool.captcha.generator.CodeGenerator;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.google.common.base.Strings;
+import com.hzy.stock.Context.BaseContext;
 import com.hzy.stock.Exception.BusinessException;
 import com.hzy.stock.constant.StockConstant;
 import com.hzy.stock.mapper.SysRoleMapper;
@@ -355,6 +356,52 @@ public class UserServiceImpl implements UserService {
         user.setUpdateTime(new Date());
         int row = sysUserMapper.updateByPrimaryKey(user);
 
+        return R.ok(ResponseCode.SUCCESS.getMessage());
+    }
+
+    /**
+     * 修改用户密码
+     * @param vo
+     * @return
+     */
+    @Override
+    public R<String> updateUserPassword(UserPwdVo vo) {
+        //判断请求的参数是否为空
+        if(vo == null){
+            throw new BusinessException(ResponseCode.DATA_ERROR.getMessage());
+        }
+        String currentId = BaseContext.getCurrentId();//全局获取id
+        //根据id查询用户信息
+        SysUser user = sysUserMapper.findUserInfoByName(currentId);
+        //判断用户的密码是否正确
+        if(!passwordEncoder.matches(vo.getOldPwd(),user.getPassword())){
+            //如果密码错误，则返回错误信息
+            return R.error(ResponseCode.OLD_PASSWORD_ERROR);
+        }
+        //否则修改用户的新密码
+        user.setPassword(passwordEncoder.encode(vo.getNewPwd()));
+        int row = sysUserMapper.updateByPrimaryKey(user);
+        if(row != 1){
+            //如果修改失败，则返回错误信息
+            return R.error(ResponseCode.ERROR);
+        }
+        return R.ok(ResponseCode.SUCCESS.getMessage());
+    }
+
+    /**
+     * 重置用户密码
+     * @param userId
+     * @return
+     */
+    @Override
+    public R<String> resetUserPassword(Long userId) {
+        //判断id是否为空
+        if(userId == null){
+            throw new BusinessException(ResponseCode.DATA_ERROR.getMessage());
+        }
+        SysUser user = sysUserMapper.selectByPrimaryKey(userId);
+        user.setPassword("12345678");
+        int row = sysUserMapper.updateByPrimaryKey(user);
         return R.ok(ResponseCode.SUCCESS.getMessage());
     }
 
