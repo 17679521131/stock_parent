@@ -5,7 +5,7 @@ spring:
 #  datasource:
 #    druid:
 #      username: root
-#      password: 12345678
+#      password: 
 #      url: jdbc:mysql://127.0.0.1:3306/stock_db?useUnicode=true&characterEncoding=UTF-8&allowMultiQueries=true&useSSL=false&serverTimezone=Asia/Shanghai
 #      driver-class-name: com.mysql.cj.jdbc.Driver
 #      # 初始化时建立物理连接的个数。初始化发生在显示调用 init 方法，或者第一次 getConnection 时
